@@ -20,7 +20,7 @@ def list_all_commands():
     print("Enable/disable output in a '<target_username>_<command>.txt' file")
     pc.print("JSON=y/n\t", style="white")
     print("Enable/disable export in a '<target_username>_<command>.json' file")
-    pc.print("addrs\t\t", style="skyblue")
+    pc.print("locations\t\t", style="blue")
     print("Get all addresses by pinned by  Target")
     pc.print("caption\t\t", style="red")
     print("Get target's photos captions")
@@ -45,6 +45,7 @@ def _exit():
     pc.print("Exiting..\n", style="red")
     sys.exit(0)
 
+
 signal.signal(signal.SIGINT, signal_handler)
 
 if is_windows:
@@ -64,48 +65,39 @@ parser.add_argument('-f', '--file', help='Store result in a file', action='store
 args = parser.parse_args()
 api = Instagram(args.id, args.file, args.json)
 
-
-signal.signal(signal.SIGINT, signal_handler)
-gnureadline.parse_and_bind("tab: complete")
-gnureadline.set_completer(completer)
-
-
-
 commands = {
 
         'ls': list_all_commands,
         'help': list_all_commands,
         'quit': _exit,
         'exit': _exit,
-        'addrs': api.get_addrs,
-        'captions': api.get_captions,
-        'comments':api.get_total_comments,
+        'locations': api.target_locations,
+        #'captions': api.get_captions,
+        #'comments':api.get_total_comments,
 
 }
 
 
-
-
-
-
-
+signal.signal(signal.SIGINT, signal_handler)
+gnureadline.parse_and_bind("tab: complete")
+gnureadline.set_completer(completer)
 
 while True:
-    pc.print("Run a command: ", style="yellow")
-    cmd = input()
+    #pc.print("command: ", style="yellow")
+    cmd = input("Command :")
 
     _cmd = commands.get(cmd)
 
     if _cmd:
-        _cmd()
+        list_all_commands()
     elif cmd == "FILE=y":
-        api.set_write_file(True)
+        api.write_file(True)
     elif cmd == "FILE=n":
-        api.set_write_file(False)
+        api.write_file(False)
     elif cmd == "JSON=y":
-        api.set_json_dump(True)
+        api.json_dump(True)
     elif cmd == "JSON=n":
-        api.set_json_dump(False)
+        api.json_dump(False)
     elif cmd == "":
         print("")
     else:
