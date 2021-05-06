@@ -151,6 +151,13 @@ class Instagram:
         self.is_private = user['is_private']
         self.following = self.check_following()
         self.__printTarget__()
+        
+    def change_target(self):
+        pc.print("Choose a new target username: ", style="cyan")
+        line = input()
+        self.chooseTarget(line)
+        return
+        
 
     def __getPassword__(self):
         try:
@@ -251,9 +258,6 @@ class Instagram:
         else:
             pc.print("It seems like user haven't pinned any location until now.", style="red")
             
-        
-            
-    
      
     def __getFeed__(self):
         data = []
@@ -348,3 +352,579 @@ class Instagram:
             pc.print("Sorry! No Captions Found : \n", style="red")
 
         return
+    
+    def _all_comments(self):
+        if self.check_private_profile():
+            return
+        pc.print("Searching for target's all comments...\n")
+        
+        comments_count = 0
+        posts = 0
+        data = self.__getFeed__()
+        
+        for post in data:
+            comments_count += post['comment_count']
+            posts += 1
+            
+        if self.writeFile:
+            file_name = "results/" + self.target + "_comments.txt"
+            fComments = open(file_name,"w")
+            fComments.write(str(comments_count) + "comments in " + str(posts) + " posts\n")
+            
+        if self.jsonDump:
+            json_data = {
+                'comments_count':comments_count,
+                'posts':posts
+            }
+            json_file_name = "results/" + self.target + "_comments.json"
+            with open(json_file_name, 'w') as fp:
+                json.dump(json_data,fp)
+                
+        pc.print(str(comments_count), style="magenta")
+        pc.print("comments in " + str(posts) + " posts\n")
+        
+    def _followers(self):
+        if self.check_private_profile():
+            return
+        pc.print("Searching for target's followers....\n", style="yellow")
+        
+        get_followers = []
+        followers = []
+        
+        rank_token = AppClient.generate_uuid()
+        data = self.api.user_followers(str(self.target_id), rank_token=rank_token)
+        
+        get_followers.extend(data.get('users', []))
+        
+        next_max_id = data.get('next_max_id')
+        while next_max_id:
+            sys.stdout.write("\rCatched %i followers" % len(get_followers))
+            sys.stdout.flush()
+            results = self.api.user_followers(str(self.target_id), rank_token=rank_token, max_id=next_max_id)
+            get_followers.extend(results.get('users', []))
+            next_max_id = results.get('next_max_id')
+            
+        print("\n")
+        
+        for user in get_followers:
+            users = {
+                'id': user['pk'],
+                'username':user['username'],
+                'full_name': user['full_name']
+            }
+            followers.append(users)
+            
+        t = PrettyTable(['ID', 'Username', 'Full Name'])
+        t.align["ID"] = "l"
+        t.align["Username"] = "l"
+        t.align["Full Name"] = "l"
+        
+        json_data = {}
+        followings_list = []
+        
+        for node in followers:
+            t.add_row([str(node['id']), node['username'], node['full_name']])
+            if self.jsonDump:
+                follow = {
+                    'id': node['id'],
+                    'username' : node['username'],
+                    'full_name': node['full_name']
+                }
+                followings_list.append(follow)
+                
+        if self.writeFile:
+            file_name = "results/" + self.target + "_followers.txt"
+            ffollowers = open(file_name, "w")
+            ffollowers.write(str(t))
+            ffollowers.close()
+            
+        if self.jsonDump:
+            json_data['followers'] = followers
+            json_file_name = "results/" + self.target + "_followers.json"
+            with open(json_file_name, "w") as fp:
+                json.dump(json_data, fp)
+                
+        print(t)
+        
+        
+    def _followings(self):
+        if self.check_private_profile():
+            return
+        
+        pc.print("Searching for target's following....\n", style="cyan")
+        
+        get_followings = []
+        followings = []
+        
+        rank_token = AppClient.generate_uuid()
+        
+        data = self.api.user_following(str(self.target_id), rank_token=rank_token)  
+        get_followings.extend(data.get('users', [])) 
+        
+        next_max_id = data.get('next_max_id')
+        while next_max_id:
+            sys.stdout.write('\r Find %i followings' %len(get_followings))
+            sys.stdout.flush()
+            results = self.api.user_following(str(self.target_id), rank_token=rank_token, max_id=next_max_id)
+            
+            get_followings.extend(results.get('users', []))
+            
+            next_max_id  = results.get('next_max_id')
+            
+        print('\n')
+        
+        for user in get_followings:
+            users  = {
+                'id': user['pk'],
+                'username': user['username'],
+                'full_name' : user['full_name']
+            }
+            followings.append(users) 
+            
+        t =PrettyTable(['ID', 'Username', 'Full Name'])
+        
+        t.align["ID"] = "l"
+        t.align["Username"] = "l"
+        t.align["Full Name"] = "l"
+        
+        json_data = {}
+        followings_list = []
+        
+        for node in followings:
+            t.add_row([str(node['id']), node['username'], node['full_name']])
+            
+            if self.jsonDump:
+                follow = {
+                    'id': node['id'],
+                    'username':node['username'],
+                    'full_name':node['full_name']
+                    
+                }
+                followings_list.append(follow)
+                
+        if self.writeFile:
+            file_name = "results/" + self.target + "_followings.txt"
+            ffollowings = open(file_name, "w")
+            ffollowings.write(str(t))
+            ffollowings.close()
+            
+        if self.jsonDump:
+            json_data['followings'] = followings_list
+            json_file_name = "results/" + self.target + "_followings.json"
+            
+            with open(json_file_name, "w") as fp:
+                json.dump(json_data, fp)
+                
+        print(t)
+        
+    def _hashtags(self):
+        if self.check_private_profile():
+            return
+        
+        pc.print("Looking for target's used hahstags...\n", style="cyan")
+        
+        hashtags = []
+        num_of_hashtags = 1
+        texts = []
+        
+        data = self.api.user_feed(str(self.target_id))
+        texts.extend(data.get('items', []))
+        
+        next_max_id = data.get('next_max_id')
+        while next_max_id:
+            results = self.api.user_feed(str(self.target_id), max_id=next_max_id)
+            texts.extend(results.get('items', []))
+            next_max_id = results.get('next_max_id')
+            
+        for post in texts:
+            if post['caption'] is not None:
+                caption = post['caption']['text']
+                for tags in caption.split():
+                    if tags.startswith('#'):
+                        hashtags.append(tags.encode('UTF-8'))
+                        num_of_hashtags += 1
+                        
+        if len(hashtags) > 0:
+            hashtags_num = {}
+            
+            for h in hashtags:
+                if h in hashtags_num:
+                    hashtags_num[i] += 1
+                else:
+                    hashtags_num[i] = 1
+                
+            hashtags_ssort = sorted(hashtags_num.items(), key=lambda x:x[1], reverse=True)
+        
+            file = None
+            json_data = {}
+            hashtags_list = []
+        
+            if self.writeFile:
+                file_name = "results/" + self.target + "_hashtags.txt"
+                file  = open(file_name, "w") 
+            
+            for h,s in hashtags_ssort:
+                hashtag = str(h.decode('utf-8'))
+                print(str(s) + " . " + hashtag)
+                if self.writeFile:
+                    file.write(str(s) + " . " + hashtag)
+                
+                if self.jsonDump:
+                    hashtags_list.append(hashtag)
+                
+            if file is not None:
+                file.close()
+            
+            if self.jsonDump:
+                json_data['hashtags'] = hashtags_list
+                json_file_name = "results/" + self.target + "_hashtags.json"
+                with open(json_file_name, "w") as fp:
+                    json.dump(json_data, fp)
+        
+        else:
+            pc.print("Sorry! We can not found any results.\n", style="red")                 
+    
+    def _user_info(self):
+        try:
+            endpoint = 'user/{user_id!s}/full_detail_info/'.format(**{'user_id':self.target_id})
+            content = self.api._call_api(endpoint)
+            
+            data = content['user_detail']['user']
+            
+            pc.print("[ID]", style="green")
+            print(str(data['pk']) + '\n')
+            
+            pc.print("[FULL NAME]", style="red")
+            print(str(data['full_name']) + '\n')
+            
+            pc.print("[BIOGRAPHY]", style="cyan")
+            print(str(data['biography']) + '\n')
+            
+            pc.print("[FOLLOWED]", style="red")
+            print(str(data['follower_count']) + '\n')
+            
+            pc.print("[FOLLOW]", style="green")
+            print(str(data['following_count']) + '\n')
+   
+            pc.print("[BUSINESS ACCOUNT]", style="red")
+            print(str(data['is_business']) + '\n')
+            
+            
+            if data['is_business']:
+                if not data['can_hide_category']:
+                    pc.print("BUSINESS CATEGORY", style="yellow")
+                    print(str(data['category']) + '\n')
+                    
+            pc.print("[VERIFIED ACCOUNT]", style="cyan")
+            print(str(data['is_verified']) + '\n')
+            
+            if 'public_email' in data and data['public_email']:
+                pc.print("[EMAIL]", style="blue")
+                print(str(data['public_email']) + '\n')
+                
+            pc.print("[ PROFILE PICTURE ]", style="green")
+            print(str(data['hd_profile_pic_url_info']['url']) + '\n' )
+            
+            if 'fb_page_call_to_action_id' in data and data['fb_page_call_to_action_id']:
+                pc.print("[Facebook Page]" , style="red")
+                print(str(data['connected_fb_page']) + '\n')
+                
+            if 'whatsapp_number' in data and data['whatsapp_number']:
+                pc.print("[What'sapp Number ]", style="yellow")
+                print(str(data['whatsapp_number']) + '\n')
+                
+            if 'city_name' in data and data['city_name']:
+                pc.print("[City Name]", style="green")
+                print(str(data['city_name']) + '\n')
+                
+            if 'address_street' in data and data['address_street']:
+                pc.print("[ Address Street ]", style="red")
+                print(str(data['address_street']) +  '\n')
+                
+            if 'contact_phone_number' in data and data['contact_phone_number']:
+                pc.print("[Contact Number]", style="green")
+                print(str(data['contact_phone_number']) + '\n')
+                
+            if self.jsonDump:
+                user = {
+                    "id":data['pk'],
+                    "full_name": data['full_name'],
+                    'biography': data['biography'],
+                    'edge_followed_by':data['follower_count'],
+                    'edge_follow' :data['following_count'],
+                    'is_business_account': data['is_business_account'],
+                    'is_verified': data['is_business'],
+                    'profile_pic_url_hd': data['hd_profile_pic_url_info']['url'],
+                }
+                if 'public_email' in data and data['public_email']:
+                    user['email'] = data['public_email']
+                        
+                if 'fb_page_call_to_action_id' in data and data['fb_page_call_to_action_id']:
+                    user['connected_fb_page'] = data['fb_page_call_to_action_id']
+                        
+                if 'whatsapp_number' in data and data['whatsapp_number']:
+                    user['whatsapp_number']  = data['whatsapp_number']
+                        
+                if 'city_name' in data and data['city_name']:
+                    user['city_name'] = data['city_name']
+                        
+                if 'address_street' in data and data['address_street']:
+                    user['address_street'] = data['address_street']
+                        
+                if 'contact_phone_number' in data and data['contact_phone_number']:
+                    user['contact_phone_number'] = data['contact_phone_number']
+                        
+                json_file_name = "results/" + self.target + "_info.json"
+                with open(json_file_name, 'w') as fp:
+                   json.dump(user, fp)
+        
+        except ClientError as err:
+            pc.print(err, style="red") 
+            print(str(self.target) + "not exist, please enter a valid username.")
+            print('\n') 
+            exit(2) 
+            
+    def _total_likes(self):
+        if self.check_private_profile():
+            return
+        
+        pc.print("Finding total likes of target....\n")
+        
+        like_num = 0
+        posts = 0
+        
+        data = self.__getFeed__()
+        
+        for post in data:
+            like_num += post['like_num']
+            posts += 1
+            
+        if self.writeFile:
+            file_name = "results/" + self.target + "_likes.txt"
+            flikes = open(file_name, "w")
+            flikes.write(str(like_num) + " likes in " + str(like_num) + "posts\n")
+            flikes.close()
+            
+        if self.jsonDump:
+            json_data = {
+                'like_num': like_num,
+                'posts': posts
+            }
+            json_file_name = "results/" + self.target +"_likes.json"
+            with open(json_file_name , 'w') as fp:
+                json.dump(json_data, fp)
+                
+        pc.print(str(like_num), style="magenta")
+        pc.print(" likes in " + str(posts)+ " posts \n", style="yellow")
+        
+        
+    def _media_type(self):
+        if self.check_private_profile():
+            return
+        pc.print("Searching for target captions...\n")
+        
+        num = 0
+        photo_num = 0
+        video_num = 0
+        
+        data = self.__getFeed__()
+        
+        for post in data:
+            if 'media_type' in post:
+                if post['media_type'] == 1:
+                    photo_num = photo_num + 1
+                elif post['media_type'] == 2:
+                    video_num = video_num + 1
+                    
+                num = num + 1
+                sys.stdout.write("\r Checked %i" % num)
+                sys.stdout.flush()
+                
+        sys.stdout.write(" posts") 
+        sys.stdout.flush()
+        
+        if num > 0:
+            
+            if self.writeFile:
+                file_name = "results/" + self.target + "_mediaformat.txt" 
+                fmedia_type = open(file_name, "w")
+                fmedia_type.write(str(photo_num) + " photos and " + str(video_num) + " video posted by target \n" ) 
+                fmedia_type.close()
+                
+            if self.jsonDump:
+                json_file_name = "results/" + self.target  + "_mediaformat.json"
+                json_data = {
+                    "photos"  :photo_num,
+                    "videos" : video_num
+                }
+                with open(json_file_name, 'w') as fp:
+                    json.dump(json_data, fp)
+                    
+        else:
+            pc.print("No Results Found \n", style="red")
+            
+            
+    def _people_who_commented(self):
+        if self.check_private_profile():
+            return
+        
+        pc.print("Searching for users who commented...\n", style="yellow")
+        
+        data =self.__getFeed__()
+        
+        users = []
+        
+        for post in data:
+            comments = self.__getComments__(post['id'])
+            
+            for comment in comments:
+                if not any(u['id'] == comment['user']['pk'] for u in users):
+                    user = {
+                        'id':comment['user']['pk'],
+                        'username': comment['user']['username'],
+                        'full_name': comment['user']['full_name'],
+                        'number': 1
+                    }
+                    users.append(user)
+                    
+                else:
+                    for user in users:
+                        if user['id'] == comment['user']['pk']:
+                            user['number'] += 1
+                            break
+                        
+        if len(users) > 0 :
+            ssorted = sorted(users, key=lambda y: y['number'], reverse=True)
+            
+            json_data = {}
+            
+            t = PrettyTable()
+            
+            t.field_names = ['Comments', 'ID', 'Username', 'Full Name']
+            t.align["Comments"] = "l"
+            t.align["ID"] ="l"
+            t.align["Username"] = "l"
+            t.align["Full Name"] = "l"
+            
+            for u in ssorted:
+                t.add_row([str(u['number']), u['id'], u['username'], u['full_name']])
+                
+            print(t)
+            
+            if self.writeFile:
+                file_name = "results/"+ self.target + "_users_who_commented.txt"
+                fusers = open(file_name, "w")
+                fusers.write(str(t))
+                fusers.close()
+                 
+            if self.jsonDump:
+                json_data['users_who_commented'] = ssorted
+                json_file_name = "results/" + self.target + "_users_who_commented.json"
+                with open(json_file_name, 'w') as fp:
+                    json.dump(json_data, fp) 
+                
+                
+        else:
+            pc.print("No Users Found! \n", style="red")        
+            
+    def _users_who_tagged(self):
+        if self.check_private_profile():
+            return
+        
+        pc.print("Searching for Tagged Users..\n", style="yellow") 
+        
+        posts =[]
+        result = self.api.usertag_feed(self.target_id)
+        posts.extend(result.get('items', [])) 
+        
+        next_max_id = result.get('next_max_id')
+        while next_max_id:
+            results = self.api.user_feed(str(self.target_id), max_id=next_max_id)
+            posts.extend(results.get('items', []))
+            next_max_id = results.get('next_max_id')
+            
+        if len(posts) > 0:
+            pc.print("\n Hurrah!! We got " + str(len(posts)) + "photos\n", style="green" )
+            
+            users = []
+            
+            for post in posts:
+                if not any(u['id'] == post['user']['pk'] for u in users):
+                    user = {
+                        'id': post['user']['pk'],
+                        'username': post['user'['username']],
+                        'full_name': post['user']['full_name'],
+                        'number': 1
+                    }
+                    users.append(user)
+                    
+                else:
+                    for user in users:
+                        if user['id'] == post['user']['pk']:
+                            user['number'] += 1
+                            break
+                        
+            tagged_sort = sorted(users, key=lambda y:y['number'], reverse=True)
+            
+            json_data = {}
+            t=PrettyTable()
+            
+            t.field_names = ['Photos', 'ID', 'Username', 'Full Name']
+            
+            t.align['Photos'] = "l"
+            t.align['ID'] = "l"
+            t.align['Username'] = "l"
+            t.align['Full Name'] = "l"
+            
+            for u in tagged_sort:
+                t.add_row([str(u['number']), u['id'], u['username'], u['full_name']])
+                
+            print(t)
+            
+            if self.writeFile:
+                file_name = "results/"+ self.target + "_tagged.txt"
+                ftagged = open(file_name,"w")
+                ftagged.close()
+                
+            if self.jsonDump:
+                json_data['users_who_tagged'] = tagged_sort
+                json_file_name = "results/" + self.target + "_tagged.json"
+                with open(json_file_name, 'w') as fp:
+                    json.dump(json_data, fp)
+                    
+        else:
+            pc.print("No users found!", style="red")
+            
+    def _photo_description(self):
+        if self.check_private_profile():
+            return
+        
+        content = requests.get("https://www.instagram.com/"+ str(self.target)+ "/?__a=1")
+        data = content.json()
+        
+                      
+        
+                    
+                    
+                
+                    
+                    
+                
+                
+            
+            
+
+        
+                 
+                
+            
+                    
+        
+        
+        
+        
+         
+                
+                
+                
+        
