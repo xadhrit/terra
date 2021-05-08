@@ -2,7 +2,7 @@
 
 
 <p align="center">
-<img src="./img/terra.jpg" alt="terra"  />
+<img src="./img/terra.jpg"  alt="terra"  />
 </p>
 
 <p align="center" >
