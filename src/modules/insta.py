@@ -39,12 +39,14 @@ def list_all_commands():
     print("Get email of users followed by target")
     pc.print("followers  phone\t", style="red")
     print("Get phone number of target followers")
-    pc.print("following phone\t" ,style="cyan")
+    pc.print("followings phone\t" ,style="cyan")
     print("Get phone number of users followed by target")
     pc.print("tags\t", style="yellow")
     print("Get hashtags used by target")
-    pc.print("info\t\t", style="white")
+    pc.print("timeline\t\t", style="white")
     print("Target  timeline and information")
+    pc.print("Posts\t\t", style="green")
+    print("Get total number of posts of target.")
     pc.print("likes\t\t", style="red")
     print("Get total likes of target's posts")
     pc.print("mediatype\t", style="green")
@@ -53,13 +55,13 @@ def list_all_commands():
     print("Get description of target's photos")
     pc.print("photos\t\t", style="yellow")
     print("Download target's photos in output folder")
-    pc.print("propic\t\t", style="white")
+    pc.print("profile pic\t\t", style="white")
     print("Download target's profile picture")
     pc.print("stories\t\t", style="cyan")
     print("Download target's stories")
     pc.print("tagged\t\t", style="red")
     print("Get list of users tagged by target")
-    pc.print("target\t\t", style="white")
+    pc.print("reset target\t\t", style="white")
     print("Set new target")
     pc.print("commenter\t", style="red")
     print("Get a list of user who commented target's photos")
@@ -103,11 +105,31 @@ args = parser.parse_args()
 api = Instagram(args.id, args.file, args.json)
 
 commands = {
-    'list': list_all_commands,
+    'ls': list_all_commands,
     'help': list_all_commands,
     'quit' : quit,
-    'exit': quit,
+    'exit': _out,
     'locations': api.target_locations,
+    'captions':api.__getCaptions__,
+    'reset target': api.change_target,
+    'comments': api._all_comments,
+    'followers': api._followers,
+    'followings': api._followings,
+    'followers emails': api.followers_email,
+    'following emails': api.followings_email,
+    'followers phone' : api.followers_phoneNumber,
+    'followings phone': api.followings_phoneNumber,
+    'tags':api._hashtags,
+    'timeline':api._user_timeline,
+    'likes': api._total_likes,
+    'mediatype': api._media_type,
+    'photodes': api._photo_description,
+    'photos': api._user_photo,
+    'profile pic': api._user_profilepic,
+    'stories': api._user_stories,
+    'tagged': api._people_who_tagged_by_target,
+    'commenter':  api._people_who_commented,
+    'ttag': api._users_who_tagged
 }
 
 signal.signal(signal.SIGINT, handle_single)
