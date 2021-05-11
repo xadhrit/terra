@@ -121,7 +121,7 @@ class Instagram:
         try:
             content = self.api.username_info(username)
             if self.writeFile:
-                file_name = "results/" + self.target + ".txt"
+                file_name = "../../results/" + self.target + ".txt"
                 fp = open(file_name, "w")
                 fp.write(str(content['user']['pk']))
                 fp.close()
@@ -204,36 +204,41 @@ class Instagram:
         pc.print("Searching for pinned locations of target...\n")
         
         data = self.__getFeed__()
+        #print(data)
         locations = {}
+        
         
         for post in data:
             if 'location' in post and post['location'] is not None:
                 if 'lat' in post['location'] and 'lng' in post['location']:
-                    lt = post['location']['lat']
-                    log = post['location']['lng']
-                    locations[str(lt) + ', ' + str(log)] = post.get('online at')
-                    
-        post_location = {}
-        for l, n in post_location.items():
-            detail = self.geolocator.reverse(l)
-            time = datetime.datetime.fromtimestamp(n)
-            post_location[detail.post_location] = time.strftime('%Y-%m-%d %H:%M:%S')
-            
-        locations_sort = sorted(post_location.items(), key=lambda x: x[1], reverse=True)
+                    lat = post['location']['lat']
+                    lng = post['location']['lng']
+                    locations[str(lat) + ', ' + str(lng)] = post.get('taken_at')
+
+        location = {}
+        for k, v in locations.items():
+            details = self.geolocator.reverse(k)
+            unix_timestamp = datetime.datetime.fromtimestamp(v)
+            location[details.address] = unix_timestamp.strftime('%Y-%m-%d %H:%M:%S')
+
+        _locations = sorted(location.items(), key=lambda p: p[1], reverse=True)
+
         
-        if len(locations_sort) > 0:
+        if len(_locations) > 0:
             t = PrettyTable()
             t.field_names = ['Post', 'Location', 'Time']
             t.align['Post'] = "l"
             t.align['Location'] = "l"
             t.align['Time'] = "l"
-            pc.print("Results " + str(len(locations_sort)) + " addresses\n", style="cyan")
+            pc.print("Results " + str(len(_locations)) + " locations\n", style="cyan")
+        
+            i = 1                
             
             data_in_json = {}
             locations_list = []
             
-            for post_location, time in locations_sort:
-                t.add_row([str(post_location),  time]) 
+            for post_location, time in _locations:
+                t.add_row([str(i), location , time]) 
                  
                 if self.jsonDump:
                     loc = {
@@ -241,16 +246,18 @@ class Instagram:
                         'Time': time
                     }
                     locations_list.append(loc)
+                
+                i = i+1
                     
             if self.writeFile:
-                file_name = "results"+ self.target + "_locations.txt"
+                file_name = "../../results"+ self.target + "_locations.txt"
                 fp = open(file_name, "w")
                 fp.write(str(t))
                 fp.close()
                 
             if self.jsonDump:
                 data_in_json['post_location'] = locations_list
-                file_name = "results/" + self.target + "_locations.json"
+                file_name = "../../results/" + self.target + "_locations.json"
                 with open(file_name, "w") as fp:
                     json.dump(data_in_json, fp)
                     
@@ -288,9 +295,9 @@ class Instagram:
         return comments
 
     def __printTarget__(self):
-        pc.print("\nLogged as", style="yellow")
+        pc.print("Logged as : ", style="yellow")
         pc.print(self.api.username, style="green")
-        pc.print(" Target: ", style="bold red")
+        pc.print(". Target ", style="bold red")
         pc.print(str(self.target), style="white")
         pc.print(" [ " + str(self.target_id) + "]")
         if self.is_private:
@@ -316,7 +323,8 @@ class Instagram:
                     if item["caption"] is not None:
                         text = item["caption"]["text"]
                         captions.append(text)
-                        sys.stdout.write("\rFound %i" % num_of_captions)
+                        num_of_captions= num_of_captions + 1
+                        sys.stdout.write("\rFound %i  " %  num_of_captions)
                         sys.stdout.flush()
 
         except AttributeError:
@@ -325,13 +333,14 @@ class Instagram:
             pass
         # save results in json file
         caption_data = {}
+        #print(caption_data)
 
         if num_of_captions > 0:
             pc.print("\nFound " + str(num_of_captions) +
                      "captions\n", style="cyan")
 
             if self.writeFile:
-                file_name = "result/" + self.target + "_captions.txt"
+                file_name = "../../result/" + self.target + "_captions.txt"
                 fCap = open(file_name, "w")
 
             for s in captions:
@@ -342,11 +351,13 @@ class Instagram:
 
             if self.jsonDump:
                 caption_data['captions'] = captions
-                caption_file_name = "result/" + self.target + "_followings.json"
+                caption_file_name = "../../result/" + self.target + "_followings.json"
                 with open(caption_file_name, 'w') as f:
                     json.dump(caption_data, f)
-
-            fCap.close()
+            
+            
+                    fCap.close()
+            
 
         else:
             pc.print("Sorry! No Captions Found : \n", style="red")
@@ -367,7 +378,7 @@ class Instagram:
             posts += 1
             
         if self.writeFile:
-            file_name = "results/" + self.target + "_comments.txt"
+            file_name = "../../results/" + self.target + "_comments.txt"
             fComments = open(file_name,"w")
             fComments.write(str(comments_count) + "comments in " + str(posts) + " posts\n")
             
@@ -376,12 +387,12 @@ class Instagram:
                 'comments_count':comments_count,
                 'posts':posts
             }
-            json_file_name = "results/" + self.target + "_comments.json"
+            json_file_name = "../../results/" + self.target + "_comments.json"
             with open(json_file_name, 'w') as fp:
                 json.dump(json_data,fp)
                 
         pc.print(str(comments_count), style="magenta")
-        pc.print("comments in " + str(posts) + " posts\n")
+        pc.print("comments in " + str(posts) + " posts")
         
     def _followers(self):
         if self.check_private_profile():
@@ -398,7 +409,7 @@ class Instagram:
         
         next_max_id = data.get('next_max_id')
         while next_max_id:
-            sys.stdout.write("\rCatched %i followers" % len(get_followers))
+            sys.stdout.write("\rDiscovered %i followers" % len(get_followers))
             sys.stdout.flush()
             results = self.api.user_followers(str(self.target_id), rank_token=rank_token, max_id=next_max_id)
             get_followers.extend(results.get('users', []))
@@ -433,14 +444,14 @@ class Instagram:
                 followings_list.append(follow)
                 
         if self.writeFile:
-            file_name = "results/" + self.target + "_followers.txt"
+            file_name = "../../results/" + self.target + "_followers.txt"
             ffollowers = open(file_name, "w")
             ffollowers.write(str(t))
             ffollowers.close()
             
         if self.jsonDump:
             json_data['followers'] = followers
-            json_file_name = "results/" + self.target + "_followers.json"
+            json_file_name = "../../results/" + self.target + "_followers.json"
             with open(json_file_name, "w") as fp:
                 json.dump(json_data, fp)
                 
@@ -503,14 +514,14 @@ class Instagram:
                 followings_list.append(follow)
                 
         if self.writeFile:
-            file_name = "results/" + self.target + "_followings.txt"
+            file_name = "../../results/" + self.target + "_followings.txt"
             ffollowings = open(file_name, "w")
             ffollowings.write(str(t))
             ffollowings.close()
             
         if self.jsonDump:
             json_data['followings'] = followings_list
-            json_file_name = "results/" + self.target + "_followings.json"
+            json_file_name = "../../results/" + self.target + "_followings.json"
             
             with open(json_file_name, "w") as fp:
                 json.dump(json_data, fp)
@@ -560,7 +571,7 @@ class Instagram:
             hashtags_list = []
         
             if self.writeFile:
-                file_name = "results/" + self.target + "_hashtags.txt"
+                file_name = "../../results/" + self.target + "_hashtags.txt"
                 file  = open(file_name, "w") 
             
             for h,s in hashtags_ssort:
@@ -577,19 +588,20 @@ class Instagram:
             
             if self.jsonDump:
                 json_data['hashtags'] = hashtags_list
-                json_file_name = "results/" + self.target + "_hashtags.json"
+                json_file_name = "../../results/" + self.target + "_hashtags.json"
                 with open(json_file_name, "w") as fp:
                     json.dump(json_data, fp)
         
         else:
             pc.print("Sorry! We can not found any results.\n", style="red")                 
     
-    def _user_info(self):
+    def _user_timeline(self):
         try:
             endpoint = 'user/{user_id!s}/full_detail_info/'.format(**{'user_id':self.target_id})
             content = self.api._call_api(endpoint)
-            
+            #print(content)
             data = content['user_detail']['user']
+            #print(data)
             
             pc.print("[ID]", style="green")
             print(str(data['pk']) + '\n')
@@ -674,7 +686,7 @@ class Instagram:
                 if 'contact_phone_number' in data and data['contact_phone_number']:
                     user['contact_phone_number'] = data['contact_phone_number']
                         
-                json_file_name = "results/" + self.target + "_info.json"
+                json_file_name = "../../results/" + self.target + "_info.json"
                 with open(json_file_name, 'w') as fp:
                    json.dump(user, fp)
         
@@ -700,7 +712,7 @@ class Instagram:
             posts += 1
             
         if self.writeFile:
-            file_name = "results/" + self.target + "_likes.txt"
+            file_name = "../../results/" + self.target + "_likes.txt"
             flikes = open(file_name, "w")
             flikes.write(str(like_num) + " likes in " + str(like_num) + "posts\n")
             flikes.close()
@@ -710,7 +722,7 @@ class Instagram:
                 'like_num': like_num,
                 'posts': posts
             }
-            json_file_name = "results/" + self.target +"_likes.json"
+            json_file_name = "../../results/" + self.target +"_likes.json"
             with open(json_file_name , 'w') as fp:
                 json.dump(json_data, fp)
                 
@@ -746,13 +758,14 @@ class Instagram:
         if num > 0:
             
             if self.writeFile:
-                file_name = "results/" + self.target + "_mediaformat.txt" 
+                file_name = "../../results/" + self.target + "_mediaformat.txt" 
                 fmedia_type = open(file_name, "w")
                 fmedia_type.write(str(photo_num) + " photos and " + str(video_num) + " video posted by target \n" ) 
                 fmedia_type.close()
-                
+            pc.print("\nCatched " + str(photo_num) + "video posted by target\n", style="cyan")    
+            
             if self.jsonDump:
-                json_file_name = "results/" + self.target  + "_mediaformat.json"
+                json_file_name = "../../results/" + self.target  + "_mediaformat.json"
                 json_data = {
                     "photos"  :photo_num,
                     "videos" : video_num
@@ -812,14 +825,14 @@ class Instagram:
             print(t)
             
             if self.writeFile:
-                file_name = "results/"+ self.target + "_users_who_commented.txt"
+                file_name = "../../results/"+ self.target + "_users_who_commented.txt"
                 fusers = open(file_name, "w")
                 fusers.write(str(t))
                 fusers.close()
                  
             if self.jsonDump:
                 json_data['users_who_commented'] = ssorted
-                json_file_name = "results/" + self.target + "_users_who_commented.json"
+                json_file_name = "../../results/" + self.target + "_users_who_commented.json"
                 with open(json_file_name, 'w') as fp:
                     json.dump(json_data, fp) 
                 
@@ -882,13 +895,13 @@ class Instagram:
             print(t)
             
             if self.writeFile:
-                file_name = "results/"+ self.target + "_tagged.txt"
+                file_name = "../../results/"+ self.target + "_tagged.txt"
                 ftagged = open(file_name,"w")
                 ftagged.close()
                 
             if self.jsonDump:
                 json_data['users_who_tagged'] = tagged_sort
-                json_file_name = "results/" + self.target + "_tagged.json"
+                json_file_name = "../../results/" + self.target + "_tagged.json"
                 with open(json_file_name, 'w') as fp:
                     json.dump(json_data, fp)
                     
@@ -925,15 +938,16 @@ class Instagram:
                         'description': desc
                     }
                     description_list.append(description)
+                num_of_descrip += 1
                 
             if self.writeFile:
-                file_name = "results/" + self.target + "_descritption.txt"
+                file_name = "../../results/" + self.target + "_descritption.txt"
                 fdesc = open(file_name, "w")
                 fdesc.close()
                     
             if self.jsonDump:
                 json_data['descriptions']  = description_list
-                json_file_name = "results/"+ self.target + "_desc.json"
+                json_file_name = "../../results/"+ self.target + "_desc.json"
                 with open(json_file_name, 'w') as fp:
                     json.dump(json_data, fp)
                     
@@ -983,7 +997,7 @@ class Instagram:
                     num_of_photos = num_of_photos + 1
                     url = photo["image_version2"]["candidates"][0]["url"]
                     photo_id = photo["id"]
-                    response = "results/"+ self.target + "_" + photo_id + ".jpg"
+                    response = "../../results/"+ self.target + "_" + photo_id + ".jpg"
                     
                     urllib.request.urlretrieve(url, response)
                     sys.stdout.write("\r Downloaded %i" %num_of_photos)
@@ -998,7 +1012,7 @@ class Instagram:
                         url = c["image_version2"]["candidates"][0]["url"]
                         
                         photo_id = c["id"]
-                        response = "results/" + self.target + "_" + photo_id+ ".jpg"
+                        response = "../../results/" + self.target + "_" + photo_id+ ".jpg"
                         
                         urllib.request.urlretrieve(url, response)
                         sys.stdout.write("\r Downloaded %i" %num_of_photos)
@@ -1032,7 +1046,7 @@ class Instagram:
                 URL = data['hd_profile_pic_versions'][profile_pics - 1]['url'] 
                 
             if URL != "":
-                res = "results/" + self.target + "_dp.jpg" 
+                res = "../../results/" + self.target + "_dp.jpg" 
                 urllib.request.urlretrieve(URL, res)
                 pc.print("Target;'s Profile Picture downloaded in results/ folder \n", style="green")
                 
@@ -1060,12 +1074,12 @@ class Instagram:
                 story_id = s["id"]  
                 if s['media_type'] == 1:  #if photo in story
                     url = s['image_version2']['candidates'][0]['url']
-                    res =  "results/" + self.target + "_"+ story_id + ".jpg"
+                    res =  "../../results/" + self.target + "_"+ story_id + ".jpg"
                     urllib.request.urlretrieve(url, res)
                     
                 elif s['media_type'] == 2: # if video
                     url = s['video_versions'][0]['url']
-                    res = "results/" + self.target + "_" + story_id + ".mp4"
+                    res = "../../results/" + self.target + "_" + story_id + ".mp4"
                     
                     urllib.request.urlretrieve(url, res)
                     
@@ -1135,7 +1149,7 @@ class Instagram:
                     tagged_list.append(tag)
                     
             if self.writeFile:
-                file_name = "results/" + self.target + "user_tagged.txt"
+                file_name = "../../results/" + self.target + "user_tagged.txt"
                 fp = open(file_name, "w")
                 fp.write(str(t))
                 fp.close()
@@ -1143,7 +1157,7 @@ class Instagram:
             if self.jsonDump:
                 
                 json_data['tagged'] = tagged_list
-                json_file_name = "results/"+ self.target + "_tagged.json"
+                json_file_name = "../../results/"+ self.target + "_tagged.json"
                 
                 with open(json_file_name, 'w') as fp:
                     json.dump(json_data, fp)
@@ -1218,14 +1232,14 @@ class Instagram:
                 t.add_row([str(node['id']), node['username'], node['full_name'], node['email']])
                 
             if self.writeFile:
-                file_name = "results/"+ self.target+ "_emails.txt"
+                file_name = "../../results/"+ self.target+ "_emails.txt"
                 fp = open(file_name, "w")
                 fp.write(str(t))
                 fp.close()
                 
             if self.jsonDump:
                 json_data['followers_email'] = results
-                json_file_name = "results/"+ self.target + "_emails.json"
+                json_file_name = "../../results/"+ self.target + "_emails.json"
                 
                 with open(json_file_name, "w") as fp:
                     json.dump(json_data, fp)
@@ -1300,14 +1314,14 @@ class Instagram:
                 t.add_row([str(node['id']), node['username'], node['full_name'], node['email']])
                 
                 if self.writeFile:
-                    file_name = "results/" + self.target + "followingsemail.txt"
+                    file_name = "../../results/" + self.target + "followingsemail.txt"
                     fp  = open(file_name, "w")
                     fp.write(str(t))
                     fp.close()
                     
                 if self.jsonDump:
                     json_data['followings_email'] = results
-                    json_file_name = "results/"+ self.target + "_followingsemail.json"
+                    json_file_name = "../../results/"+ self.target + "_followingsemail.json"
                     with open(json_file_name, "w") as fp:
                         json.dump(json_data, fp)
                         
@@ -1381,14 +1395,14 @@ class Instagram:
                 t.add_row([str(node['id']), node['username'], node['full_name'],node['contact_phone_number']])
                 
                 if self.writeFile:
-                    file_name = "results/" + self.target + "_followingsnumber.txt"
+                    file_name = "../../results/" + self.target + "_followingsnumber.txt"
                     
                     fp = open(file_name, "w")
                     fp.write(str(t))
                     fp.close()
                 if self.jsonDump:
                     json_data['followings_phone_numbers'] = results
-                    json_file_name = "results/" + self.target + "_followingsnumber.json"
+                    json_file_name = "../../results/" + self.target + "_followingsnumber.json"
                     
                     with open(json_file_name, 'w')  as fp:
                         json.dump(json_data, fp)
@@ -1463,14 +1477,14 @@ class Instagram:
                 t.add_row([str(node['id']), node['username'], node['full_name'], node['contact_phone_number']]) 
                 
             if self.writeFile:
-                file_name = "results/" + self.target + "_followersnumber.txt"
+                file_name = "../../results/" + self.target + "_followersnumber.txt"
                 fp  =open(file_name, "w")
                 fp.write(str(t))
                 fp.close()
                 
             if self.jsonDump:
                 json_data['followers_phone_numbers'] = results
-                json_file_name = "results/" +self.target + "_followersnumber.json"
+                json_file_name = "../../results/" +self.target + "_followersnumber.json"
                 with open(json_file_name, fp):
                     json.load(json_data, fp) 
                     
@@ -1511,14 +1525,14 @@ class Instagram:
                 print(t)
                 
                 if self.writeFile:
-                    file_name = "results/"+ self.target + "_commenters.txt"
+                    file_name = "../../results/"+ self.target + "_commenters.txt"
                     fp = open(file_name, "w")
                     fp.write(str(t))
                     fp.close()
                     
                 if self.jsonDump:
                     json_data['user_who_commented'] = cssort
-                    json_file_name = "results/"+ self.target + "commenters.json"
+                    json_file_name = "../../results/"+ self.target + "commenters.json"
                     
                     with open(json_file_name, "w") as fp:
                         json.dump(json_data, fp)
