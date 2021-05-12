@@ -18,17 +18,20 @@ pc.print("Testing Twitter Module..", style="yellow")
 
 
 def list_all_commands():
-    pc.print("tweets\t\t",style="red")
+    pc.print("tweets\t\t",style="bright_cyan")
     print("\nGet Recent Tweets of Target")
     pc.print("fav\t\t", style="yellow")
     print("\n Get total Favourites of target")
-    pc.print("followers\t\t", style="white")
+    pc.print("followers\t\t", style="bright_green")
     print("\n Get total followers of Target")
     pc.print("followings\t\t", style="cyan")
     print("\n Get total followings of target")
-    pc.print("list\t\t", style="green")
-    print("\n Get list of target's list")
+    pc.print("reset target\t\t", style='green')
+    print("\n Select new Target")
+    pc.print("info\t\t", style="dark_cyan")
+    print("\n Full Information of Target's Account")
     
+        
 def handle_single(sig, frame):
     pc.print("\n Sending you Out \n", style="red")
     sys.exit(0)
@@ -71,11 +74,12 @@ commands = {
     'help': list_all_commands,
     'quit': quit,
     'exit': _out,
+    'reset target' : api.reset_target,
     'tweets': api.recent_tweets, 
     'fav': api.total_fav,
     'followers': api.get_followers,
     'following': api.get_frnds,
-    'list': api.get_list
+    'info': api.get_user,
     
 }
 
@@ -84,7 +88,7 @@ gnureadline.parse_and_bind("tab: complete")
 gnureadline.set_completer(completer)
 
 while True:
-    pc.print("Terra Command : ", style="cyan")
+    pc.print("\n Terra Command : ", style="cyan")
     user_input = input()
     
     cmd = commands.get(user_input)
