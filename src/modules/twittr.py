@@ -1,14 +1,3 @@
-"""
-
-API Key: 7np6DuME8eguQJ1A0iYrefzaQ
-API Secret Key: 6AuPpib8uJGnKDdA9nJcDnnHWWajfNiqsHIxH5j6E7rXyrG9nZ
-
-Bearer Token: AAAAAAAAAAAAAAAAAAAAAHQSPAEAAAAAS1HmIEOispsWLiT%2FGgHSHK63Cc4%3DWYNvWWDwhfvcBwOkQC3ySRTEfmEkocdZDOq7bRnTeDoo1D1zsH
-
-Access Token: 1291638708110651392-T00PIQffV3zCEB5VjPUo9Zi6ziCGdq
-
-Access Token: fDraPtVcJ0SX71ncPPwiNINHsyzdlEsJNpwkFT2Gd6PbF
-"""
 
 import urllib
 import sys
@@ -38,19 +27,19 @@ class Twitter:
 
     def __init__(self,target):
     
-        self.api = twitter.Api(consumer_key='7np6DuME8eguQJ1A0iYrefzaQ',consumer_secret='6AuPpib8uJGnKDdA9nJcDnnHWWajfNiqsHIxH5j6E7rXyrG9nZ',access_token_key='1291638708110651392-T00PIQffV3zCEB5VjPUo9Zi6ziCGdq',access_token_secret='fDraPtVcJ0SX71ncPPwiNINHsyzdlEsJNpwkFT2Gd6PbF')
+        self.api = twitter.Api(consumer_key='',consumer_secret='',access_token_key='',access_token_secret='')
+        self.target = target
         pc.print("\nValidating Your Credentials...", style="cyan")
         self.__verifyCreds__()
         self.__setTarget__(target)
         #self.writeFile = is_file
-        #self.js ap api = twitter.Api(consumer_key='7np6DuME8eguQJ1A0iYrefzaQ',consumer_secret='6AuPpib8uJGnKDdA9nJcDnnHWWajfNiqsHIxH5j6E7rXyrG9nZ',access_token_key='1291638708110651392-T00PIQffV3zCEB5VjPUo9Zi6ziCGdq',access_token_secret='fDraPtVcJ0SX71ncPPwiNINHsyzdlEsJNpwkFT2Gd6PbF')i = twitter.Api(consumer_key='7np6DuME8eguQJ1A0iYrefzaQ',consumer_secret='6AuPpib8uJGnKDdA9nJcDnnHWWajfNiqsHIxH5j6E7rXyrG9nZ',access_token_key='1291638708110651392-T00PIQffV3zCEB5VjPUo9Zi6ziCGdq',access_token_secret='fDraPtVcJ0SX71ncPPwiNINHsyzdlEsJNpwkFT2Gd6PbF')onFile = is_json
-    
+        #self.jsonDump = is_json
     
     
     def __verifyCreds__(self):
         result = []
          
-        api = twitter.Api(consumer_key='7np6DuME8eguQJ1A0iYrefzaQ',consumer_secret='6AuPpib8uJGnKDdA9nJcDnnHWWajfNiqsHIxH5j6E7rXyrG9nZ',access_token_key='1291638708110651392-T00PIQffV3zCEB5VjPUo9Zi6ziCGdq',access_token_secret='fDraPtVcJ0SX71ncPPwiNINHsyzdlEsJNpwkFT2Gd6PbF')
+        api = twitter.Api(consumer_key='',consumer_secret='',access_token_key='',access_token_secret='')
         result = api.VerifyCredentials()
         #print(result)
         my_name = result.screen_name
