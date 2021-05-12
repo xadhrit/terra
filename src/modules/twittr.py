@@ -32,14 +32,13 @@ class Twitter:
     #tatus = None
     #riends = None
     #target = ""
-    screen_name = ""
+    target = ""
     writeFile = False
     jsonDump = False
 
     def __init__(self,target):
     
         self.api = twitter.Api(consumer_key='7np6DuME8eguQJ1A0iYrefzaQ',consumer_secret='6AuPpib8uJGnKDdA9nJcDnnHWWajfNiqsHIxH5j6E7rXyrG9nZ',access_token_key='1291638708110651392-T00PIQffV3zCEB5VjPUo9Zi6ziCGdq',access_token_secret='fDraPtVcJ0SX71ncPPwiNINHsyzdlEsJNpwkFT2Gd6PbF')
-        self.target = target
         pc.print("\nValidating Your Credentials...", style="cyan")
         self.__verifyCreds__()
         self.__setTarget__(target)
@@ -53,6 +52,7 @@ class Twitter:
          
         api = twitter.Api(consumer_key='7np6DuME8eguQJ1A0iYrefzaQ',consumer_secret='6AuPpib8uJGnKDdA9nJcDnnHWWajfNiqsHIxH5j6E7rXyrG9nZ',access_token_key='1291638708110651392-T00PIQffV3zCEB5VjPUo9Zi6ziCGdq',access_token_secret='fDraPtVcJ0SX71ncPPwiNINHsyzdlEsJNpwkFT2Gd6PbF')
         result = api.VerifyCredentials()
+        #print(result)
         my_name = result.screen_name
         pc.print("logged in as: ", my_name, style="green")
         #data.extend(result.description)
@@ -72,7 +72,6 @@ class Twitter:
            pc.print("\n")
 
         self.writeFile = flag
-
     
     def json_dump(self, flag):
         if flag:
@@ -107,11 +106,69 @@ class Twitter:
             pc.print(t, style="yellow")
         return    
     
+    
+    
+    def get_user(self):
+        try:
+            data = self.api.GetUser(screen_name=self.target)
+            print(data)
+            pc.print("\n Target's Information: \n", style='green')
+            pc.print("\n Username : {} , id : {} ".format(data.screen_name,data.id),style='yellow')
+            pc.print("\n Joined on : ", data.created_at, style="red")
+            pc.print("\n Full Name : ", data.name, style="bright_cyan")
+            pc.print("\n Bio : ", data.description, style="sandy_brown")
+            pc.print("\n Url : ", data.url, style="aquamarine1")
+            pc.print("\n Location : " ,data.location, style="orchid2")
+            pc.print("\n Total Favourites Tweets : "  ,data.favourites_count, style="bright_yellow")
+            pc.print("\n Followers :  ", data.followers_count, style='orange_red1')
+            pc.print("\n Following : ", data.friends_count, style='orchid2')
+            pc.print("\n Total Tweets : ", data.statuses_count,style='green')
+            pc.print("\n Active lists ", data.listed_count, style='yellow')
+            pc.print("\n Recent Tweet : {} at {}".format(data.status.text, data.status.created_at), style='gold1')
+            pc.print("\n Active Device or Medium : {}".format(data.status.source), style="orchid1")
+            print("\n Downloading target's profile picture...")
+            try:
+                URL = data.profile_image_url
+                if URL != "":
+                    end = "../../results/" + self.target + "_profile_pic.jpg"
+                    urllib.request.urlretrieve(URL,end)
+                    pc.print("Photos saved in results/ folder.", style="light_green")
+                else:
+                    pc.print("Sorry unable to download this time.", style="bright_red")
+            except Exception as err:
+                pc.print(err, style='red')
+            
+            print("\n Downloading banner of target's profile...") 
+            try:
+                URL = data.profile_banner_url
+                if URL != "":
+                    end = "../../results/" + self.target + "_banner.jpg" 
+                    urllib.request.urlretrieve(URL, end)
+                    pc.print("Banner is saved in results/ folder", style='light_green')
+                
+                else:
+                    pc.print("Unable to download banner. Sorry!", style="red")
+            except Exception as err:
+                pc.print(err, style="red")
+            
+            pass
+        
+        except Exception as err:
+            pc.print(err, style="bright_red")
+            pass    
+        
+    
     def __setTarget__(self, target):
         target = self.target
         return target
         
-    
+    def reset_target(self):
+        pc.print("Enter new Target's Screen Name : ")
+        user_input = input()
+        self.__setTarget__(user_input)
+        return
+        
+      
     def total_fav(self):
         
         #total favourites of target
