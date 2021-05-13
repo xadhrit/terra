@@ -113,7 +113,7 @@ else:
     gnureadline.parse_and_bind("tab: complete")
     gnureadline.set_completer(completer)
 
-parser = argparse.ArgumentParser(description='terra instagram module testing')
+parser = argparse.ArgumentParser(description='Recon with Terra')
 parser.add_argument('id', type=str, help='username of target')
 parser.add_argument('-j', '--json', help='save results in a JSON file', action='store_true')
 parser.add_argument('-f', '--file', help='save results in a Text File', action='store_true')
