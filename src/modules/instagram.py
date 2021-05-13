@@ -5,12 +5,16 @@ import requests
 import sys
 import urllib
 import os
+import time
+from rich.style import Style
 # rich table is not working here
+import yaml
 from prettytable import PrettyTable
 from rich.console import Console
 from instagram_private_api import ClientCookieExpiredError, ClientLoginRequiredError, ClientError, ClientThrottledError
 from instagram_private_api import Client as AppClient
 from geopy.geocoders import Nominatim
+from yaml.loader import FullLoader, Loader
 
 pc = Console()
 
@@ -32,12 +36,20 @@ class Instagram:
     def __init__(self, target, is_file, is_json):
         user = self.__getUsername__()
         passwd = self.__getPassword__()
-        pc.print("\nAttempting to Login ~~", style="green")
+        self.load_message()
+        #pc.print("\nAttempting to Login ~~", style="green")
         self.login(user, passwd)
         self.chooseTarget(target)
         self.writeFile = is_file
         self.jsonDump = is_json
      
+    
+    def load_message(self):
+        # logging message should be displaying
+        login_message = "Attempting to Login :) "
+        pc.print(login_message, style='sea_green1')
+        
+        
     def write_file(self, flag):
         if flag:
             pc.print("Write to file: ", style="white")
@@ -64,6 +76,7 @@ class Instagram:
 
     def login(self, user, passwd):
         try:
+            
             settings_file = "../../creds/settings.json"
             if not os.path.isfile(settings_file):
                 # if file does not exit
@@ -71,10 +84,13 @@ class Instagram:
                     'Unable to find Settings file: {0!s}'.format(settings_file))
 
                 # new login
-
+                time1 = time.time()      
                 self.api = AppClient(auto_patch=True, authentication=True, username=user,password=passwd, on_login=lambda x: self.onlogin_callback(x, settings_file))
-
+                time2 = time.time()
+                pc.print("\n Logged in {} seconds".format(time2-time1), style='yellow2')
+                  
             else:
+                
                 with open(settings_file) as file_data:
                     cached_settings = json.load(file_data, object_hook=self.from_json)
 
@@ -115,7 +131,7 @@ class Instagram:
         cache_settings = api.settings
         with open(new_settings_file, 'w') as resultfile:
             json.dump(cache_settings, resultfile, default=self.to_json)
-            print("Result has been save in {}".format(new_settings_file))
+            pc.print("Login Infomation has been saved in {}".format(new_settings_file), style='bright_white')
 
     def get_user(self, username):
         try:
@@ -161,8 +177,8 @@ class Instagram:
 
     def __getPassword__(self):
         try:
-            passwd = open("../../creds/password.conf", "r").read()
-            passwd = passwd.replace("\n", "")
+            password = yaml.load(open('../../creds/insta.yml'), Loader=FullLoader)
+            passwd = password['insta']['password']
             return passwd
         except FileNotFoundError:
             pc.print("Error: file not found", style="red")
@@ -171,8 +187,8 @@ class Instagram:
 
     def __getUsername__(self):
         try:
-            user = open("../../creds/user.conf", "r").read()
-            user = user.replace("\n", "")
+            username = yaml.load(open('../../creds/insta.yml'), Loader=FullLoader)
+            user = username['insta']['username']
             return user
         except FileNotFoundError:
             pc.print("Error: file not found", style="red")
@@ -295,17 +311,19 @@ class Instagram:
         return comments
 
     def __printTarget__(self):
-        pc.print("Logged as : ", style="yellow")
-        pc.print(self.api.username, style="green")
-        pc.print(". Target ", style="bold red")
-        pc.print(str(self.target), style="white")
-        pc.print(" [ " + str(self.target_id) + "]")
+        pc.print("\nLogged as : ", style="yellow", end = '')
+        pc.print(self.api.username, style="green",end = '')
+        pc.print(" | Target : ", style="bold red", end='')
+        pc.print(str(self.target), style="white", end='')
+        pc.print(" | id :  ", style='cyan', end='')
+        pc.print(str(self.target_id) , style='bright_white')
         if self.is_private:
-            pc.print("Target have Private Profile", style="hotpink")
+            pc.print("Target have Private Profile", style="salmon1")
         if self.following:
-            pc.print("Following", style="orange")
+            pc.print("Following", style="orange1")
         else:
-            pc.print("You are not Following Target's Account ", style="red")
+            pc.print("You are not Following {}'s Account ".format(self.target), style="red")
+        print("\n") 
 
     def __getCaptions__(self):
         if self.check_private_profile():
@@ -597,7 +615,7 @@ class Instagram:
     
     def _user_timeline(self):
         try:
-            endpoint = 'user/{user_id!s}/full_detail_info/'.format(**{'user_id':self.target_id})
+            endpoint = 'users/{user_id!s}/full_detail_info/'.format(**{'user_id':self.target_id})
             content = self.api._call_api(endpoint)
             #print(content)
             data = content['user_detail']['user']
@@ -692,7 +710,7 @@ class Instagram:
         
         except ClientError as err:
             pc.print(err, style="red") 
-            print(str(self.target) + "not exist, please enter a valid username.")
+            print(str(self.target) + " not exist, please enter a valid username.")
             print('\n') 
             exit(2) 
             
@@ -708,7 +726,7 @@ class Instagram:
         data = self.__getFeed__()
         
         for post in data:
-            like_num += post['like_num']
+            like_num += post['like_count']
             posts += 1
             
         if self.writeFile:
@@ -749,7 +767,7 @@ class Instagram:
                     video_num = video_num + 1
                     
                 num = num + 1
-                sys.stdout.write("\r Checked %i" % num)
+                sys.stdout.write("\r Checked %i " % num)
                 sys.stdout.flush()
                 
         sys.stdout.write(" posts") 
@@ -865,7 +883,7 @@ class Instagram:
                 if not any(u['id'] == post['user']['pk'] for u in users):
                     user = {
                         'id': post['user']['pk'],
-                        'username': post['user'['username']],
+                        'username': post['user']['username'],
                         'full_name': post['user']['full_name'],
                         'number': 1
                     }
@@ -1073,7 +1091,7 @@ class Instagram:
             for s in data['items'] :
                 story_id = s["id"]  
                 if s['media_type'] == 1:  #if photo in story
-                    url = s['image_version2']['candidates'][0]['url']
+                    url = s['image_versions2']['candidates'][0]['url']
                     res =  "../../results/" + self.target + "_"+ story_id + ".jpg"
                     urllib.request.urlretrieve(url, res)
                     
@@ -1122,6 +1140,7 @@ class Instagram:
             pc.print(err, style="red")
             print("")
             pass
+        
         if len(ids) > 0:
             t = PrettyTable()
             t.field_names = ['Posts', 'Full Name','Username', 'ID']
@@ -1296,8 +1315,8 @@ class Instagram:
         
         except ClientThrottledError as error:
             pc.print(error,style="red")
-            return
-            print("\n")
+            
+            
             
         print('\n')
         
@@ -1313,19 +1332,19 @@ class Instagram:
             for node in results:
                 t.add_row([str(node['id']), node['username'], node['full_name'], node['email']])
                 
-                if self.writeFile:
-                    file_name = "../../results/" + self.target + "followingsemail.txt"
-                    fp  = open(file_name, "w")
-                    fp.write(str(t))
-                    fp.close()
+            if self.writeFile:
+                file_name = "../../results/" + self.target + "followingsemail.txt"
+                fp  = open(file_name, "w")
+                fp.write(str(t))
+                fp.close()
                     
-                if self.jsonDump:
-                    json_data['followings_email'] = results
-                    json_file_name = "../../results/"+ self.target + "_followingsemail.json"
-                    with open(json_file_name, "w") as fp:
-                        json.dump(json_data, fp)
+            if self.jsonDump:
+                json_data['followings_email'] = results
+                json_file_name = "../../results/"+ self.target + "_followingsemail.json"
+                with open(json_file_name, "w") as fp:
+                    json.dump(json_data, fp)
                         
-                print(t)
+            print(t)
                 
         else:
             pc.print("No Emails Found...\n", style="red")
@@ -1377,6 +1396,7 @@ class Instagram:
                     
         except ClientThrottledError as err:
             pc.print("\n Error: Instagram Blocked your requests. Try again after few minutes...\n", style="red")
+            pc.print(err,style='red')
             print("\n")
             return
         
@@ -1394,19 +1414,19 @@ class Instagram:
             for node in results:
                 t.add_row([str(node['id']), node['username'], node['full_name'],node['contact_phone_number']])
                 
-                if self.writeFile:
-                    file_name = "../../results/" + self.target + "_followingsnumber.txt"
+            if self.writeFile:
+                file_name = "../../results/" + self.target + "_followingsnumber.txt"
                     
-                    fp = open(file_name, "w")
-                    fp.write(str(t))
-                    fp.close()
-                if self.jsonDump:
-                    json_data['followings_phone_numbers'] = results
-                    json_file_name = "../../results/" + self.target + "_followingsnumber.json"
+                fp = open(file_name, "w")
+                fp.write(str(t))
+                fp.close()
+            if self.jsonDump:
+                json_data['followings_phone_numbers'] = results
+                json_file_name = "../../results/" + self.target + "_followingsnumber.json"
                     
-                    with open(json_file_name, 'w')  as fp:
-                        json.dump(json_data, fp)
-                print(t)
+                with open(json_file_name, 'w')  as fp:
+                    json.dump(json_data, fp)
+            print(t)
         else:
             pc.print("No Phone Numbers Found", style="red")    
     
@@ -1522,20 +1542,20 @@ class Instagram:
             for u in cssort:
                 t.add_row([str(u['counter']), u['id'], u['username'], u['full_name']])
                 
-                print(t)
+            print(t)
                 
-                if self.writeFile:
-                    file_name = "../../results/"+ self.target + "_commenters.txt"
-                    fp = open(file_name, "w")
-                    fp.write(str(t))
-                    fp.close()
+            if self.writeFile:
+                file_name = "../../results/"+ self.target + "_commenters.txt"
+                fp = open(file_name, "w")
+                fp.write(str(t))
+                fp.close()
                     
-                if self.jsonDump:
-                    json_data['user_who_commented'] = cssort
-                    json_file_name = "../../results/"+ self.target + "commenters.json"
+            if self.jsonDump:
+                json_data['user_who_commented'] = cssort
+                json_file_name = "../../results/"+ self.target + "commenters.json"
                     
-                    with open(json_file_name, "w") as fp:
-                        json.dump(json_data, fp)
+                with open(json_file_name, "w") as fp:
+                    json.dump(json_data, fp)
                         
         else:
             pc.print("No Commenters Found! \n", style="red")
