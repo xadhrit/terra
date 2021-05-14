@@ -1,7 +1,7 @@
 # Terra
 
 
-<p align="center">
+<p align="center"  >
 <img src="./img/terra.jpg"  alt="terra"  />
 </p>
 
@@ -12,12 +12,16 @@ Superior Domination with Terra : Recon tool on Social Media Networks for hackers
 ### Recon Available :
 
 
-<p src="https://twitter.com/" >
-<img height="100px" width="100px" src="./img/twitter.png" />
+<p>
+<img height="100px" width="100px" src="./img/tweet.png" />
 </p>
 
-<p src="https://instagram.com/" >
+<p>
 <img height="100px" width="100px" src="./img/insta.png" />
+</p>
+
+<p>
+<img height="100px" width="100px" src="./img/linkdein.png" />
 </p>
 
 
