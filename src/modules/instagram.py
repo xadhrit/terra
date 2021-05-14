@@ -357,7 +357,7 @@ class Instagram:
                      "captions\n", style="cyan")
 
             if self.writeFile:
-                file_name = "../../result/" + self.target + "_captions.txt"
+                file_name = "../../results/instagram/" + self.target + "_captions.txt"
                 fCap = open(file_name, "w")
 
             for s in captions:
@@ -368,7 +368,7 @@ class Instagram:
 
             if self.jsonDump:
                 caption_data['captions'] = captions
-                caption_file_name = "../../result/" + self.target + "_followings.json"
+                caption_file_name = "../../results/instagram/" + self.target + "_followings.json"
                 with open(caption_file_name, 'w') as f:
                     json.dump(caption_data, f)
             
