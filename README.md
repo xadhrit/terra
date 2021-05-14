@@ -20,9 +20,7 @@ Superior Domination with Terra : Recon tool on Social Media Networks for hackers
 <img height="100px" width="100px" src="./img/insta.png" />
 </p>
 
-<p>
-<img height="100px" width="100px" src="./img/linkdein.png" />
-</p>
+
 
 
 
