@@ -1,12 +1,11 @@
 import argparse
-import sys
+import sys , os 
 import signal
-from rich import style
-from rich.console import Console, get_windows_console_features
+from rich.console import Console 
 from twittr import Twitter
 
 pc = Console()
-is_wind = sys.platform.startswith('win')
+is_wind = sys.platform.startswith('win' or 'nt')
 
 if is_wind:
     import pyreadline
@@ -18,18 +17,34 @@ pc.print("Testing Twitter Module..", style="yellow")
 
 
 def list_all_commands():
-    pc.print("tweets\t\t",style="bright_cyan")
-    print("\nGet Recent Tweets of Target")
-    pc.print("fav\t\t", style="yellow")
-    print("\n Get total Favourites of target")
-    pc.print("followers\t\t", style="bright_green")
-    print("\n Get total followers of Target")
-    pc.print("followings\t\t", style="cyan")
-    print("\n Get total followings of target")
-    pc.print("reset target\t\t", style='green')
-    print("\n Select new Target")
-    pc.print("info\t\t", style="dark_cyan")
-    print("\n Full Information of Target's Account")
+    pc.print("FILE=y/n : ", style="yellow",end='')
+    print(" Enable/disable output in a '<target username>_<command>.txt' file")
+    pc.print("JSON=y/n :  \t", style="white", end='')
+    print("Enable/disable export in a '<target username>_<command>.json' file'")
+    pc.print("tweets\t : ",style="bright_cyan", end='')
+    print("Get recent tweets of target")
+    pc.print("favtweets : \t", style="yellow", end='')
+    print("Get recent tweets which are liked by target")
+    pc.print("followers : \t", style="bright_green", end='')
+    print(" Get total followers of Target")
+    pc.print("followings : \t", style="cyan", end='')
+    print("Get total followings of target")
+    pc.print("reset target : \t", style='green', end='')
+    print(" Select new target")
+    pc.print("info : \t", style="dark_cyan", end='')
+    print("Full information of target's account")
+    pc.print("profile pic : ", style='bright_magenta', end='')
+    print("Download Target's Profile Picture")
+    pc.print("banner : ", style='steel_blue1', end='')
+    print("Download Target's Profile Picture")
+    print(" ")
+    pc.print(" Also supports basic terminal commands : ", style='cyan')
+    pc.print("ls : ", style='pink1', end='')
+    pc.print("Displaying all Commands ", ":search:", style='bright_white')
+    pc.print("exit : ", style='orange_red1', end='')
+    pc.print("For Exit from Terra", style='bright_white')
+    pc.print("clear: ", style='orchid2', end='')
+    pc.print("Clear your Screen", style='bright_white')
     
         
 def handle_single(sig, frame):
@@ -48,6 +63,19 @@ def completer(text, state):
 def _out():
     pc.print("Thank you for using Terra!", style="yellow")
     sys.exit(0)
+
+
+def clear():
+    # for windows screen 
+    if is_wind:
+        os.system('cls')
+        
+    #for mac or linux screen    
+    else:
+        os.system('clear')
+
+
+
     
 signal.signal(signal.SIGINT, handle_single)
 
@@ -60,26 +88,29 @@ else:
     gnureadline.set_completer(completer) 
     
 
-parser = argparse.ArgumentParser(description="Testing Twitter Module")
-parser.add_argument('target', type=str, help='username of target')
-#parser.add_argument('-j', '--json', help='save results in a JSON file', action='store_true')
-#parser.add_argument('-f', '--file', help='save results in a Text File', action='store_true')
+parser = argparse.ArgumentParser(description="Recon with Terra")
+parser.add_argument('username', type=str, help='username of target')
+parser.add_argument('-j', '--json', help='save results in a JSON file', action='store_true')
+parser.add_argument('-f', '--file', help='save results in a Text File', action='store_true')
 
 args = parser.parse_args()   
 
-api = Twitter(args.target)
+api = Twitter(args.username,args.file, args.json)
 
 commands = {
     'ls': list_all_commands,
     'help': list_all_commands,
     'quit': quit,
+    'clear': clear,
     'exit': _out,
     'reset target' : api.reset_target,
     'tweets': api.recent_tweets, 
-    'fav': api.total_fav,
+    'favtweets': api.recent_fav,
     'followers': api.get_followers,
     'following': api.get_frnds,
-    'info': api.get_user,
+    'info': api.user_info,
+    'profile pic': api.profile_pic,
+    'banner':api.banner_pic
     
 }
 
@@ -88,13 +119,21 @@ gnureadline.parse_and_bind("tab: complete")
 gnureadline.set_completer(completer)
 
 while True:
-    pc.print("\n Terra Command : ", style="cyan")
+    pc.print("\n Terra Command : ", style="cyan", end='')
     user_input = input()
     
     cmd = commands.get(user_input)
     
     if cmd:
         cmd()
+    elif user_input == "FILE=y":
+        api.write_file(True)
+    elif user_input == "FILE=n":
+        api.write_file(False)
+    elif user_input == "JSON=y":
+        api.json_dump(True)
+    elif user_input == "JSON=n":
+        api.json_dump(False)
     elif user_input == "":
         print("")
     else:
