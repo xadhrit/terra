@@ -101,7 +101,7 @@ class Twitter:
                 fp.write("Followers : " + str(content.followers_count) +"\n")
                 fp.write("Followings : "+str(content.friends_count) + "\n" )
                 fp.write("Total Tweets : " + str(content.statuses_count) + "\n")
-                fp.write("Total Favorites : "+ str(content.favorites_count) + "\n")
+                fp.write("Total Favorites : "+ str(content.favourites_count) + "\n")
                 fp.write("Verified : "+ str(content.verified) + "\n")
                 fp.write("Active lists : "+ str(content.listed_count) + "\n")
                 fp.close()
@@ -253,7 +253,15 @@ class Twitter:
                         pc.print(err, style="orange1")   
                          
                 if self.jsonDump:
-                    tweets_data['Text'] = tweets
+                    tweets_data = {
+                        "id":  id,
+                        "date": tweeted_on,
+                        "total favorites":total_fav,
+                        "retweets": rtweet,
+                        "source":source    
+                    }              
+                            
+                    tweets_data = tweets_data + 1
                     json_file_name = "./results/twitter/" +self.target + "_tweets.json"
                     with open(json_file_name,'w') as fj:
                         json.dump(tweets_data,fj)
@@ -290,7 +298,7 @@ class Twitter:
             pc.print(e, style="red")
             pass
         
-        mentions_json = {}      
+              
         if mentions_num > 0:
             if self.writeFile:
                 file_name = './results/twitter/' + self.target + '_mentions_.txt'
@@ -312,25 +320,42 @@ class Twitter:
                     except Exception as error:
                         pc.print(error, style="red")
                           
-                mentions_num = mentions_num + 1                  
+                #entions_num = mentions_num + 1                  
             if self.jsonDump:
                 
-                mentions_json = {
-                    "id":id,
-                    "username":username,
-                    "name":Name 
-                } 
-                
-               
-                try:
+                for twt in tweets:
+                    for m in twt.user_mentions:
+                        id = m.id
+                        username = m.screen_name
+                        name = m.name
+                        
+                        mentions_json = {
+                            "id":id,
+                            "username": username,
+                            "name": name 
+                        }
+                        mentions_num = mentions_num + 1
+                        #pc.print(mentions_json,mentions_num,style='red')
+                        try:
+                            if self.jsonDump:
+                                json_file_name = "./results/twitter/"+ self.target + "_mentions_.json"
+                                with open(json_file_name, "w") as fp:
+                                    json.dump(mentions_json,fp)
+                        except Exception as e:
+                            pc.print(e,style='orange1')
+                        
+                    """    
+                    try:
                     if self.jsonDump:
+                        mentions_json = dict(mentions_json) 
+                        print(mentions_json) 
                         json_file_name = "./results/twitter/" + self.target + "_mentions_.json"
                         with open(json_file_name, "w") as fp:
                             json.dump(mentions_json, fp)
                             #pc.print("Writing in json file.", style='purple')
-                except Exception as error:
+                    except Exception as error:
                     pc.print(error, style="bold red")
-                 
+                    """    
         else:
             pc.print("No mentions found!....", style='green3')
                                          
@@ -563,6 +588,19 @@ class Twitter:
                 file.close()
                 pc.print("Results save in results/twitter/ folder.", style='green')
                 
+            if self.jsonDump:
+                json_data = {
+                    "id":id,
+                    "username":username,
+                    "full_name": full_name,
+                    "joined": joined
+                }
+                json_data  = json_data
+                json_file_name = "./results/twitter/" + self.target + "_following_.json"
+                with open(json_file_name, "w") as fp:
+                    json.dump(json_data,fp)
+                    
+                
         except (Exception, TwitterError) as err:
             pc.print(err,'User have a protected or suspended account!' , style='bright_red')       
                 
@@ -616,17 +654,42 @@ class Twitter:
         > on unexpected condition show error
         """
         pc.print("Searching for hashtags used by {}".format(self.target),style='bright_yellow')
+        htags_num = 0
         try:
             tweets = self.api.GetUserTimeline(screen_name=self.target)
             for tweet in tweets:
                 for tags in tweet.hashtags:
                     tag = tags.text
+                    htags_num = len(tag)
+                    #print(htags_num)
                     pc.print('#{}'.format(tag),style='green')
         
         except TwitterError as err:
             pc.print("Error : ", style='orange1',end='')
             pc.print('{} got a protected or suspended account. {}'.format(self.target,err.message),style='red')
             
-            
+        if htags_num > 0:
+            if self.writeFile:
+                file_name = "./results/twitter/" + self.target + "_hashtags_.txt"
+                fp = open(file_name, "w") 
                 
+                for twt in tweets:
+                    for t in twt.hashtags:
+                        hashtag = t.text
+                        try:
+                            if self.writeFile:
+                                fp.write(str(hashtag) + "\n")
+                        except Exception as error:
+                            pc.print(error, style='bold red')       
+                
+            if self.jsonDump:
+                json_data = {
+                                    "hashtag":tag 
+                }
+                json_file_name = "./results/twitter/"+ self.target + "_hashtags_.json"
+                with open(json_file_name,"w") as fj:
+                    json.dump(json_data, fj)
+                                    
+                
+                    
       
