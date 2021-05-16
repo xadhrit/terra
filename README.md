@@ -1,11 +1,10 @@
 # Terra : 
 
-
-<p align="center"  >
+<p align="center">
 <img src="./img/terra.jpg"  alt="terra"  />
 </p>
 
-<p align="center" >
+<p align="center">
 Superior Domination with Terra : Recon tool on Social Media Networks.
 </p>
 
@@ -13,7 +12,11 @@ Superior Domination with Terra : Recon tool on Social Media Networks.
 
 
 <p>
-<img height="100px" width="100px" src="./img/tweet.png" />
+<img height="100px" width="100px" src="./img/tweet.png">Twitter</img>
+</p>
+
+<p>
+<img height="100px" width="100px" src="./img/insta.png"> Instagram </img>
 </p>
 
 ## Installation
@@ -28,9 +31,6 @@ Change Directory
 ```
 $ cd terra
 ```
-
-
-Terra uses twitter python interface for extracting data. 
 
 
 ### Requirements :
@@ -48,10 +48,20 @@ For Windows
 ```
 
 #### Note
+
+For `Twitter` Credentials : 
+
 You need credentials which are listed in twitter.yml file in creds folder for using terra.
 
 You can find more about Twitter Api and Access Tokens on <a href="https://developer.twitter.com/en/docs"> Twitter's Developer Portal
 </a>
+
+
+For `Instagram` Credentails:
+
+Put your Instagram's username and password in `creds/insta.yml` file. And you are good to go.
+
+
 
 ## Usage :
 
@@ -66,7 +76,7 @@ help :  -j for saving results in a JSON file
 ```
 
 
-Legal Commands:
+##  Twitter Recon Commands :
 
 ```
 ls: Display all Terra Commands
@@ -99,19 +109,80 @@ htags : Get hashtags used by Target
 
 ```
 
+### Instgram Recon Commands :
+
+```
+ls  : Display Terra Commands,
+
+help : for Help,
+
+clear: for clearning your Screen,
+
+quit: for  quiting,
+            
+exit:  For Exiting from Terra,
+            
+locations : For getting Pinned location of target,
+            
+captions : For gathering target's captions,
+          
+reset target: For resetting target in Terra,
+            
+comments : For all comments of target,
+            
+followers : For getting follower's list of target,
+            
+followings: For getting following list of target
+            
+followers emails : For target's followers emails,
+            
+following emails : For target's  following emails,
+
+followers phone : For target  followers phone numbers,
+
+followings phone : For target  followings phone numbers,
+
+tags  : For getting  hashtags used by target ,
+
+timeline : For overview of target's account ,
+            
+likes: Get total_likes of target,
+            '
+mediatype : For information of  photos and video of target,
+          
+photodes : For gathering  target  photos description,
+            '
+photos  : For Downloading target's  photos,
+            
+profile pic : For downloading target's  profile picture,
+            
+stories : For downloading target's stories ,
+          
+tagged': For listing user who tagged by target,
+
+commenter': For getting all user who commented on target's posts
+            
+ttag : For listing user tagged target in their posts
+
+```
+
 ## Future Plans :
 
 Will be support other social media networks soon.
 
 ## Contribution :
 
-Every pull requests with good and understandable code :) is welcomed. 
+Every pull request with good and understandable code :) is welcomed. 
 
 ## TourbleShooting
 
 Open an issue on Github.
 
+## External Libraries :
 
+Python-twitter : https://github.com/bear/python-twitter
+
+Instagram Private API :  https://github.com/ping/instagram_private_api
 
 
 
