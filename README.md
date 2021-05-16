@@ -65,6 +65,9 @@ Put your Instagram's username and password in `creds/insta.yml` file. And you ar
 
 ## Usage :
 
+<p align="center">
+<img src="./img/img.png" alt="Terra" />
+</p>
 
 Basic Usage:
 
