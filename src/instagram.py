@@ -53,9 +53,11 @@ class Instagram:
     
     def load_message(self):
         # logging message should be displaying
-        login_message = "Attempting to Login :) "
-        pc.print(login_message, style='sea_green1')
         
+        login_message = "Attempting to Login :) "
+        print(" ")
+        pc.print(login_message, style='sea_green1')
+        print(" ")
         
     def write_file(self, flag):
         if flag:
@@ -105,8 +107,9 @@ class Instagram:
                     )
 
         except (ClientCookieExpiredError, ClientLoginRequiredError) as e:
+            print(" ")
             pc.print("ClientCookieExpiredError/ClientLoginRequiredError {}".format(e), style="red")
-
+            pc.print("Please re-check credentials again in ./creds/insta.yml file :) ", style='orange1')   
             # login exired
             # login again
             self.api = AppClient(auto_patch=True, authentication=True, username=user,password=passwd, on_login=lambda x: self.on_login_callback(x, settings_file))

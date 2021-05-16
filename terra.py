@@ -3,6 +3,7 @@ import sys
 import os
 from rich.console import Console
 from pyfiglet import Figlet
+from rich.style import Style
 from src.instagram import Instagram
 from src.twittr import Twitter
 import signal
@@ -128,7 +129,7 @@ def clear():
         
 def banner():
     clear()
-    banner = Figlet(font='zone7___',justify='right')
+    banner = Figlet(font='isometric3',justify='right')
     pc.print(banner.renderText("Terra"),style="bold red")
     pc.print("                         OSINT TOOL ON SOCIAL MEDIA NETWORKS                                                                                              ", style="cyan1")
     print(" ")
@@ -153,12 +154,13 @@ args = parser.parse_args()
 
 def main():
     banner()    
-    pc.print("  \n1 for Twitter ",style="bright_yellow")
-    pc.print("  \n2 for Instagram ",style="green3")
-    pc.print("Chose one option : ",style='',end='')
-    u_input = int(input())
+    pc.print("  \n> 1 for Twitter ",style="bright_yellow")
+    pc.print("  \n> 2 for Instagram ",style="green3")
+    print(" ")
+    pc.print("> Choose one option : ",style='',end='')
+    u_input = str(input())
     try:
-        if u_input == 1:
+        if u_input == '1':
             def completer(text, state):
                 options = [i for i in commands if i.startswith(text)]
                 if state < len(options):
@@ -208,6 +210,7 @@ def main():
             gnureadline.set_completer(completer)
             
             while True:
+                print(" ")
                 pc.print("~/Terra Command >$ ", style='purple', end='')
                 user_input = input()
                 
@@ -234,7 +237,7 @@ def main():
                     pc.print("ILLEGAL COMMAND", style="red")                  
       
         
-        elif u_input == 2:
+        if u_input == '2':
             def completer(text, state):
                 options = [i for i in commands if i.startswith(text)]
                 if state < len(options):
@@ -319,6 +322,15 @@ def main():
                     
                 else:
                     pc.print("ILLEGAL COMMAND", style="red")
+        if u_input == '':
+            pc.print('Invalid Option!', style='orange1')
+            #print(ValueError)
+        if KeyboardInterrupt:
+            pc.print('Sending you out!', style='bold red')
+        
+        else:
+            pc.print('Invalid Option! ',style='bright_red')
+        
                 
     except Exception as e:
         pc.print(e,style='orange1')        

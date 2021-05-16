@@ -65,6 +65,7 @@ Put your Instagram's username and password in `creds/insta.yml` file. And you ar
 
 ## Usage :
 
+
 Basic Usage:
 
 ```

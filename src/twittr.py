@@ -50,6 +50,7 @@ class Twitter:
             else:
                 tokens = yaml.load(open('./creds/twitter.yml'), Loader=yaml.FullLoader)
                 self.api = twitter.Api(consumer_key=tokens['creds']['API_Key'],consumer_secret=tokens['creds']['API_Secret_Key'],access_token_key=tokens['creds']['Access_Token'],access_token_secret=tokens['creds']['Access_Secret_Token'])
+                print(" ")
                 pc.print("\nValidating Your Credentials...", style="green") 
         except Exception as error:
             pc.print(error, style='orange1')
@@ -71,17 +72,19 @@ class Twitter:
         result = []
         result = self.api.VerifyCredentials()
         my_name = result.screen_name
+        print(" ")
         pc.print("Logged  as : ",  style="green", end='')
         pc.print(my_name,style='bright_white', end='')
         pc.print(" | Target :  ", style='red', end='')
         pc.print(self.target, style='bright_white', end='')
         pc.print(" | id : ", style='cyan', end='')
         pc.print(self.target_id, style='bright_cyan')
+        print(" ")
         self.check_following()
         return  
     
     
-    def get_user(self, screen_name):
+    def get_user(self,screen_name):
         try:
             content = self.api.GetUser(screen_name=self.target)
             
@@ -272,11 +275,12 @@ class Twitter:
                        mentions_num = mentions_num + 1
                        #sys.stdout.write('\rFound %i' % mentions_num)
                        sys.stdout.flush()
+                       print(" ")
                        pc.print('id : {}'.format(id),style='orange1')     
                        pc.print( 'username :  @{}'.format(username), style="green3")
                        pc.print('Name : {}'.format(full_name), style='green3')
                        pc.print('-----------------------------------------------------------------------',style='red')
-        
+                       print(" ")  
                     except Exception as err:
                         pc.print(err, style='red')  
                         
@@ -286,29 +290,50 @@ class Twitter:
             pc.print(e, style="red")
             pass
         
-              
+        mentions_json = {}      
         if mentions_num > 0:
             if self.writeFile:
                 file_name = './results/twitter/' + self.target + '_mentions_.txt'
                 fp  = open(file_name, 'w')
             
-                
+            
             for twt in tweets:
                 for m in twt.user_mentions:
                     id = m.id
                     username = m.screen_name
                     Name = m.name
+                    
                     try:
                         if self.writeFile:
                             fp.write(str(id) + "\n")
                             fp.write(str(username) + "\n")
                             fp.write(str(Name) + "\n" + "\n")
-                            
+                             
                     except Exception as error:
                         pc.print(error, style="red")
-
+                          
+                mentions_num = mentions_num + 1                  
+            if self.jsonDump:
                 
-                         
+                mentions_json = {
+                    "id":id,
+                    "username":username,
+                    "name":Name 
+                } 
+                
+               
+                try:
+                    if self.jsonDump:
+                        json_file_name = "./results/twitter/" + self.target + "_mentions_.json"
+                        with open(json_file_name, "w") as fp:
+                            json.dump(mentions_json, fp)
+                            #pc.print("Writing in json file.", style='purple')
+                except Exception as error:
+                    pc.print(error, style="bold red")
+                 
+        else:
+            pc.print("No mentions found!....", style='green3')
+                                         
                     
     
     def remove_tags(self,html):
@@ -429,8 +454,7 @@ class Twitter:
                     > saveing image in results/twitter/ folder
                 > On Unexpected Condition:
                     > Show respective error
-        """  
-        
+        """ 
         data =self.api.GetUser(screen_name=self.target)    
         banner = data.profile_banner_url
         if banner == None:
@@ -451,8 +475,6 @@ class Twitter:
         
     
     #  function for getting some likes info of target
-    
-    
     """ PENDING saving in json and text file is not completed!!!! 
     @xadhrit  
     """
@@ -504,27 +526,7 @@ class Twitter:
                 pass
             except Exception as err:
                 pc.print(err, style='bright_red')        
-        """
-        if tweets > 0:
-            
-            if self.writeFile:
-                file_name = "../../results/twitter/" + self.target + "_fav_tweets_.txt"
-                ffav = open(file_name, "w") 
-                ffav.write(str(fav_tweets))
-                ffav.close()
-                pc.print("All tweets have been saved in results/ folder.", style='green')
-            
-                
-            if self.jsonDump:
-            #    json_data['fav_tweets'] = fav_sorted
-                json_file_name = "../../results/twitter/" + self.target + "_fav_tweets_.json"
-                with open(json_file_name, 'w') as fp:
-                    json.dump(json_data, fp)
-                    pc.print("All tweets have been save in results/ folder", style="bright_yellow")
-                 
-        else:
-            pc.print("No Tweets found! :(", style='bright_red')   
-        """
+    
         return
     
     
@@ -567,15 +569,16 @@ class Twitter:
             
     
     def get_followers(self):    
-        """ A function for getting followers of target's account
+        """ 
+        A function for getting followers of target's account
         > Code Flow:
                > request api for GetFollowers
                > save follower's username, id and full name in json or text file
                > On Unexcepted conditions:
-                        if followers exceeds than limit then show simple rate limit exceed error
-        
+                    if followers exceeds than limit then show simple rate limit exceed error
         """
         try:
+        
             pc.print("Fetching {}'s follower list".format(self.target), style='green')
             #get followers of target
             followers = self.api.GetFollowers(screen_name=self.target)
