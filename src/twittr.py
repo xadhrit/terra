@@ -6,6 +6,8 @@ Author : Adhrit (github.com/xadhrit/terra)
 """
 
 from datetime import date
+from json.decoder import JSONDecodeError
+from typing import Counter
 import urllib
 import sys
 import json
@@ -86,7 +88,19 @@ class Twitter:
             if self.writeFile:
                 file_name = "./results/twitter/" + self.target + ".txt"
                 fp = open(file_name, "w")
-                fp.write(str(content))
+                fp.write("id : " + str(content.id) +  "\n")
+                fp.write("username : "  + str(content.screen_name) + "\n")
+                fp.write("Full Name : "  + str(content.name) + "\n")
+                fp.write("Bio : " + str(content.description) + "\n")
+                fp.write("Geo Location Permission : " + str(content.geo_enabled) + "\n")
+                fp.write("Location :  " + str(content.location) + "\n")
+                fp.write("Url : " + str(content.url) + "\n")
+                fp.write("Followers : " + str(content.followers_count) +"\n")
+                fp.write("Followings : "+str(content.friends_count) + "\n" )
+                fp.write("Total Tweets : " + str(content.statuses_count) + "\n")
+                fp.write("Total Favorites : "+ str(content.favorites_count) + "\n")
+                fp.write("Verified : "+ str(content.verified) + "\n")
+                fp.write("Active lists : "+ str(content.listed_count) + "\n")
                 fp.close()
             
             user = content     
@@ -163,13 +177,15 @@ class Twitter:
             > otherwise:
                 show some clean error with code.
         """
-        pc.print("Fetching latest tweets tweeted by {}".format(self.target))
-        
+        pc.print("Fetching latest tweets tweeted by {} \n".format(self.target))
+        tweets_num = 0
         tweets = self.api.GetUserTimeline(screen_name=self.target)
-        tweets_num = len(tweets)
-        pc.print("Catched {} tweets of {} .".format(tweets_num, self.target))
+        #print(tweets)
+        pc.print("Catched {} tweets of {} .".format(len(tweets), self.target))
+        
         for tweet in tweets:
             #print(tweet)
+           
             try:
                #get date of tweets
                tweeted_on = tweet.created_at
@@ -183,18 +199,9 @@ class Twitter:
                id = tweet.id
                #device or app information
                source = self.remove_tags(tweet.source)
-               # mentions in tweet of target
-               for mentions in tweet.user_mentions:
-                   mentions = mentions.screen_name
-               pc.print('tweet id : ', id, style='steel_blue1')  
-               pc.print('date : ', tweeted_on, style='sky_blue1')
-               pc.print('tweet : ', ttweet, style='bright_white')
-               pc.print('retweets : ',rtweet, style='orange1')  
-               pc.print('mentions : @',mentions, style='pink1')
-               pc.print('favorites : ',total_fav, style='bright_red')
-               pc.print('source or device : ',source, style='bright_yellow') 
-               print(" ")  
-               print("-----------------------------------------------------------------------------------------------------")
+               
+               tweets_num = tweets_num + 1
+               sys.stdout.flush()
                
             except TwitterError as err:
                 pc.print("Error : ", style='orange1',end='')
@@ -205,8 +212,105 @@ class Twitter:
             except Exception as err:
                 pc.print(err, style='bright_red')
                 pass        
-        return                
+            
+            tweets_data = {}
+            #save results in json file
+            if tweets_num > 0:
+                if self.writeFile:
+                    file_name = "./results/twitter/" + self.target + "_tweets.txt"
+                    fp = open(file_name, "w")
+                    
+                for twt in tweets:
+                    try:
+                        if self.writeFile:
+                            source = self.remove_tags(twt.source)
+                            pc.print('id : ',style='bright_cyan',end='')
+                            pc.print(twt.id,style='cyan')
+                            pc.print('date : ',style='bright_yellow', end='')
+                            pc.print(twt.created_at,style='yellow')
+                            pc.print('text : ',style='green3', end='')
+                            pc.print(twt.text,style='green') 
+                            pc.print('favorites : ',style='red', end='')
+                            pc.print(twt.favorite_count,style='bright_red')
+                            pc.print('retweets : ',style='cyan3', end='')
+                            pc.print(twt.retweet_count,style='blue3')
+                            pc.print('Source or Device : ', style='hot_pink3',end='')
+                            pc.print(source,style='plum3')  
+                            print(" ")
+                            pc.print("-------------------------------------------------------------------", style='bright_red')
+                            
+                            fp.write(str(twt.id) + "\n")
+                            fp.write(str(twt.created_at) + "\n")
+                            fp.write(str(twt.text) + "\n")
+                            fp.write(str(twt.favorite_count) + "\n")
+                            fp.write(str(twt.retweet_count) + "\n")
+                            fp.write(str(source) + "\n"+"\n")
+                            
+                    except Exception as err:
+                        pc.print(err, style="orange1")   
+                         
+                if self.jsonDump:
+                    tweets_data['Text'] = tweets
+                    json_file_name = "./results/twitter/" +self.target + "_tweets.json"
+                    with open(json_file_name,'w') as fj:
+                        json.dump(tweets_data,fj)
+                                    
+            return     
+        
+    def get_mentions(self):
+        tweets = self.api.GetUserTimeline(screen_name=self.target)
+        #mentions = []
+        mentions_num = 0
+        try:
+           pc.print("Searching for User's who mentioned by target.....", style="bright_yellow")
+           for tweet in tweets:
+                for mentions in tweet.user_mentions:
+                    try:
+                       id = mentions.id
+                       username = mentions.screen_name
+                       full_name = mentions.name
+                       mentions_num = mentions_num + 1
+                       #sys.stdout.write('\rFound %i' % mentions_num)
+                       sys.stdout.flush()
+                       pc.print('id : {}'.format(id),style='orange1')     
+                       pc.print( 'username :  @{}'.format(username), style="green3")
+                       pc.print('Name : {}'.format(full_name), style='green3')
+                       pc.print('-----------------------------------------------------------------------',style='red')
+        
+                    except Exception as err:
+                        pc.print(err, style='red')  
+                        
+                    
+        
+        except Exception as e:
+            pc.print(e, style="red")
+            pass
+        
+              
+        if mentions_num > 0:
+            if self.writeFile:
+                file_name = './results/twitter/' + self.target + '_mentions_.txt'
+                fp  = open(file_name, 'w')
+            
+                
+            for twt in tweets:
+                for m in twt.user_mentions:
+                    id = m.id
+                    username = m.screen_name
+                    Name = m.name
+                    try:
+                        if self.writeFile:
+                            fp.write(str(id) + "\n")
+                            fp.write(str(username) + "\n")
+                            fp.write(str(Name) + "\n" + "\n")
+                            
+                    except Exception as error:
+                        pc.print(error, style="red")
 
+                
+                         
+                    
+    
     def remove_tags(self,html):
         """
         > A function for removing data from html get from given data

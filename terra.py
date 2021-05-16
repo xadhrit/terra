@@ -1,9 +1,11 @@
 import argparse
 import sys
 import os
-import signal
 from rich.console import Console
+from pyfiglet import Figlet
+from src.instagram import Instagram
 from src.twittr import Twitter
+import signal
 
 pc = Console()
 
@@ -17,26 +19,8 @@ else:
     import gnureadline
 
 
-def banner():
 
-    pc.print("                 _ _________________________                                                                           ", style="green")
-    pc.print("                /          2021             /                                                                          ", style="green")
-    pc.print("               /__________       __________/ _______    ___________________________________________  _______           ", style="green")
-    pc.print("                          / b  /       /            \  /               /               /                    /          ", style="green")
-    pc.print("                         / y: /       /    ______    \/     __________/     __________/   _   _____        /           ", style="green")
-    pc.print("                        /    /       /   A  D  H  R  I  T /         /    /          /    /         /      /            ", style="green")
-    pc.print("                       /    /       /      ________ /    /         /    /          /    /         /      /             ", style="green")
-    pc.print("                      /    /       /               /    /         /    /          /    /_________/      /              ", style="green")
-    pc.print("                     /    /        \              /    /         /    /            \                   /               ", style="green")
-    pc.print("                    /    /          \____________/____/         /____/              \____________/ \__/                ", style="green")
-    pc.print("                   /___ /                                                                                              ", style="green")
-    pc.print("                                     OSINT TOOL ON SOCIAL MEDIA NETWORKS                                                                                              ", style="cyan1")
-    print(" ")
-    pc.print("                                     @xadhrit (github.com/xadhrit/)                                                                                                                                 " , style="bright_red")
-
-banner()
-
-def list_all_commands():
+def twitter_all_commands():
     pc.print("FILE=y/n : ", style="yellow", end='')
     print(" Enable/disable output in a '<target username>_<command>.txt' file")
     pc.print("JSON=y/n :  \t", style="white", end='')
@@ -51,7 +35,7 @@ def list_all_commands():
     print("Get total followings of target")
     pc.print("reset target : \t", style='green', end='')
     print(" Select new target")
-    pc.print("info : \t", style="dark_cyan", end='')
+    pc.print("timeline : \t", style="dark_cyan", end='')
     print("Full information of target's account")
     pc.print("profile pic : ", style='bright_magenta', end='')
     print("Download Target's Profile Picture")
@@ -59,6 +43,8 @@ def list_all_commands():
     print("Download Target's Profile Banner ")
     pc.print('htags : ', style='bright_red', end='')
     print('Get hashtags used by target')
+    pc.print('mentions : ', style='pink1')
+    print('Get users who got mentioned by target in recent tweets')
     print(" ")
     pc.print(" Also supports basic terminal commands : ", style='cyan')
     pc.print("ls : ", style='pink1', end='')
@@ -68,87 +54,275 @@ def list_all_commands():
     pc.print("clear: ", style='orchid2', end='')
     pc.print("Clear your Screen", style='bright_white')
 
-def handle_single(sig, frame):
-    pc.print("\n Sending you Out \n", style="red")
-    sys.exit(0)
 
-def completer(text, state):
-    options = [i for i in commands if i.startswith(text)]
-    if state < len(options):
-        return options[state]
 
-    else:
-        return None
 
-def _out():
-    pc.print("Thank you for using Terra!", style="yellow")
-    sys.exit(0)
+def insta_all_commands():
+    
+    pc.print("FILE=y/n : ", style="yellow",end='')
+    print(" Enable/disable output in a '<target username>_<command>.txt' file")
+    pc.print("JSON=y/n :  \t", style="white", end='')
+    print("Enable/disable export in a '<target username>_<command>.json' file'")
+    pc.print("locations :  \t", style="green", end='')
+    print("Get all registered addressed by target photos")
+    pc.print("captions : \t", style="cyan", end='')
+    print("Get target's photos captions")
+    pc.print("comments : \t", style="red", end='')
+    print("Get total comments of target's posts")
+    pc.print("followers : \t", style="yellow", end='')
+    print("get target's followers")
+    pc.print("followings : \t", style="red", end='')
+    print("Get users followed by target")
+    pc.print("followers emails :  \t", style="green", end='')
+    print("Get email of target followers")
+    pc.print("following emails :  \t", style="yellow", end='')
+    print("Get email of users followed by target")
+    pc.print("followers  phone :  \t", style="red", end='')
+    print("Get phone number of target followers")
+    pc.print("followings phone :  \t" ,style="cyan", end='')
+    print("Get phone number of users followed by target")
+    pc.print("tags : \t", style="yellow", end='')
+    print("Get hashtags used by target")
+    pc.print("info : \t", style="white", end='')
+    print("Target  timeline and information")
+    pc.print("likes : \t", style="red", end='')
+    print("Get total likes of target's posts")
+    pc.print("mediatype :  \t", style="green", end='')
+    print("Get target's posts type (photo or video)")
+    pc.print("photodes :  \t", style="cyan", end='')
+    print("Get description of target's photos")
+    pc.print("photos  : \t", style="yellow", end='')
+    print("Download target's photos in output folder")
+    pc.print("profile pic :  \t", style="white", end='')
+    print("Download target's profile picture")
+    pc.print("stories : \t", style="cyan", end='')
+    print("Download target's stories")
+    pc.print("tagged  :  \t", style="red", end='')
+    print("Get list of users tagged by target")
+    pc.print("reset target : \t\t", style="white", end='')
+    print("Set new target")
+    pc.print("commenter : \t", style="red", end='')
+    print("Get a list of user who commented target's photos")
+    pc.print("ttag  :  \t", style="green", end='')
+    print("Get a list of user who tagged target")
+    print(" ")
+    pc.print(" Also supports basic terminal commands : ", style='cyan')
+    pc.print("ls : ", style='pink1', end='')
+    pc.print("Displaying all Commands ", ":search:", style='bright_white')
+    pc.print("exit : ", style='orange_red1', end='')
+    pc.print("For Exit from Terra", style='bright_white')
+    pc.print("clear: ", style='orchid2', end='')
+    pc.print("Clear your Screen", style='bright_white')
+    
+
 
 def clear():
     # for windows screen
     if is_wind:
         os.system('cls')
 
-    # for mac or linux screen
+    # for mac or linux          
     else:
         os.system('clear')
+        
+        
+def banner():
+    clear()
+    banner = Figlet(font='zone7___',justify='right')
+    pc.print(banner.renderText("Terra"),style="bold red")
+    pc.print("                         OSINT TOOL ON SOCIAL MEDIA NETWORKS                                                                                              ", style="cyan1")
+    print(" ")
+    pc.print("                         @xadhrit (github.com/xadhrit/)                                                                                                                                 " , style="bright_red")
 
-signal.signal(signal.SIGINT, handle_single)
 
-if is_wind:
-    pyreadline.Readline().parse_and_bind("tab: complete")
-    pyreadline.Readline().set_completer(completer)
+def _out():
+    pc.print("Thank you for using Terra!", style="yellow")
+    sys.exit(0)
 
-else:
-    gnureadline.parse_and_bind("tab: complete")
-    gnureadline.set_completer(completer)
 
-parser = argparse.ArgumentParser(description="Recon with Terra")
-parser.add_argument('username', type=str, help='username of target')
+def handle_single(sig, frame):
+    pc.print("\n Sending you Out \n", style="red")
+    sys.exit(0)
+
+parser = argparse.ArgumentParser(description="Recon with Terra")        
+parser.add_argument('target', type=str, help='username of target')
 parser.add_argument('-j', '--json', help='save results in a JSON file', action='store_true')
 parser.add_argument('-f', '--file', help='save results in a Text File', action='store_true')
 args = parser.parse_args()
-api = Twitter(args.username, args.file, args.json)
 
-commands = {
-        'ls': list_all_commands,
-        'help': list_all_commands,
-        'quit': quit,
-        'clear': clear,
-        'exit': _out,
-        'reset target': api.reset_target,
-        'tweets': api.recent_tweets,
-        'favtweets': api.recent_fav,
-        'followers': api.get_followers,
-        'following': api.get_frnds,
-        'info': api.user_info,
-        'profile pic': api.profile_pic,
-        'banner': api.banner_pic,
-        'htags': api.get_hashtags
 
-}
+def main():
+    banner()    
+    pc.print("  \n1 for Twitter ",style="bright_yellow")
+    pc.print("  \n2 for Instagram ",style="green3")
+    pc.print("Chose one option : ",style='',end='')
+    u_input = int(input())
+    try:
+        if u_input == 1:
+            def completer(text, state):
+                options = [i for i in commands if i.startswith(text)]
+                if state < len(options):
+                    return options[state]
 
-signal.signal(signal.SIGINT, handle_single)
-gnureadline.parse_and_bind("tab: complete")
-gnureadline.set_completer(completer)
+                else:
+                    return None
 
-while True:
-    pc.print("\n Terra Command : ", style="cyan", end='')
-    user_input = input()
+            signal.signal(signal.SIGINT, handle_single)
+                            
+            if is_wind:
+                pyreadline.Readline().parse_and_bind("tab: complete")
+                pyreadline.Readline().set_completer(completer)
 
-    cmd = commands.get(user_input)
+            else:
+                gnureadline.parse_and_bind("tab: complete")
+                gnureadline.set_completer(completer)
+                        
+            parser = argparse.ArgumentParser(description="Recon with Terra")        
+            parser.add_argument('target', type=str, help='username of target')
+            parser.add_argument('-j', '--json', help='save results in a JSON file', action='store_true')
+            parser.add_argument('-f', '--file', help='save results in a Text File', action='store_true')
+            args = parser.parse_args()
+            api = Twitter(args.target,args.file,args.json)
+            
+                       
+            commands = {
+                'ls': twitter_all_commands,
+                'help': twitter_all_commands,
+                'quit': quit,
+                'clear': clear,
+                'exit': _out,
+                'reset target': api.reset_target,
+                'tweets': api.recent_tweets,
+                'favtweets': api.recent_fav,
+                'followers': api.get_followers,
+                'following': api.get_frnds,
+                'timeline': api.user_info,
+                'profile pic': api.profile_pic,
+                'banner': api.banner_pic,
+                'htags': api.get_hashtags,
+                'mentions':api.get_mentions
 
-    if cmd:
-        cmd()
-    elif user_input == "FILE=y":
-        api.write_file(True)
-    elif user_input == "FILE=n":
-        api.write_file(False)
-    elif user_input == "JSON=y":
-        api.json_dump(True)
-    elif user_input == "JSON=n":
-        api.json_dump(False)
-    elif user_input == "":
-        print("")
-    else:
-        pc.print("ILLEGAL COMMAND\n", style='red')
+            }
+            signal.signal(signal.SIGINT, handle_single)
+            gnureadline.parse_and_bind("tab: complete")
+            gnureadline.set_completer(completer)
+            
+            while True:
+                pc.print("~/Terra Command >$ ", style='purple', end='')
+                user_input = input()
+                
+                cmd = commands.get(user_input)
+                if cmd:
+                    cmd()
+                    
+                elif user_input == 'FILE=y':
+                    api.write_file(True)
+                
+                elif user_input == 'FILE=n':
+                    api.write_file(False)
+                    
+                elif user_input == 'JSON=y':
+                    api.json_dump(True)
+                    
+                elif user_input == 'JSON=n':
+                    api.json_dump(False)
+                    
+                elif user_input == '':
+                    print("")
+                    
+                else:
+                    pc.print("ILLEGAL COMMAND", style="red")                  
+      
+        
+        elif u_input == 2:
+            def completer(text, state):
+                options = [i for i in commands if i.startswith(text)]
+                if state < len(options):
+                    return options[state]
+
+                else:
+                   return None
+               
+            signal.signal(signal.SIGINT, handle_single)
+            
+            if is_wind:
+                  pyreadline.Readline().parse_and_bind("tab: complete")
+                  pyreadline.Readline().set_completer(completer)
+
+            else:
+                 gnureadline.parse_and_bind("tab: complete")
+                 gnureadline.set_completer(completer)
+                           
+            parser = argparse.ArgumentParser(description="Recon with Terra")        
+            parser.add_argument('target', type=str, help='username of target')
+            parser.add_argument('-j', '--json', help='save results in a JSON file', action='store_true')
+            parser.add_argument('-f', '--file', help='save results in a Text File', action='store_true')
+            args = parser.parse_args()
+            api = Instagram(args.target,args.file,args.json)
+            
+                                                                                                                      
+
+            commands = {
+            'ls': insta_all_commands,
+            'help': insta_all_commands,
+            'clear': clear,
+            'quit': quit,
+            'exit': _out,
+            'locations': api.target_locations,
+            'captions': api.__getCaptions__,
+            'reset target': api.change_target,
+            'comments': api._all_comments,
+            'followers': api._followers,
+            'followings': api._followings,
+            'followers emails': api.followers_email,
+            'following emails': api.followings_email,
+            'followers phone': api.followers_phoneNumber,
+            'followings phone': api.followings_phoneNumber,
+            'tags': api._hashtags,
+            'timeline': api._user_timeline,
+            'likes': api._total_likes,
+            'mediatype': api._media_type,
+            'photodes': api._photo_description,
+            'photos': api._user_photo,
+            'profile pic': api._user_profilepic,
+            'stories': api._user_stories,
+            'tagged': api._people_who_tagged_by_target,
+            'commenter':  api._people_who_commented,
+            'ttag': api._users_who_tagged
+            }
+            signal.signal(signal.SIGINT, handle_single)
+            gnureadline.parse_and_bind("tab: complete")
+            gnureadline.set_completer(completer)
+            
+            while True:
+                pc.print("~/Terra Command >$ ", style='purple', end='')
+                user_input = input()
+                
+                cmd = commands.get(user_input)
+                if cmd:
+                    cmd()
+                    
+                elif user_input == 'FILE=y':
+                    api.write_file(True)
+                
+                elif user_input == 'FILE=n':
+                    api.write_file(False)
+                    
+                elif user_input == 'JSON=y':
+                    api.json_dump(True)
+                    
+                elif user_input == 'JSON=n':
+                    api.json_dump(False)
+                    
+                elif user_input == '':
+                    print("")
+                    
+                else:
+                    pc.print("ILLEGAL COMMAND", style="red")
+                
+    except Exception as e:
+        pc.print(e,style='orange1')        
+    
+if __name__ == '__main__':
+    main()    
+
