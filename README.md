@@ -1,11 +1,11 @@
 # Terra : 
 
 <p align="center">
-<img src="./img/terra.jpg"  alt="terra"  />
+<img src="./img/terra.jpg" height="200px" width="400px"  alt="terra"  />
 </p>
 
 <p align="center">
-Superior Domination with Terra : Recon tool on Social Media Networks.
+ Terra : Recon tool on Social Media Networks.
 </p>
 
 ### Recon Available on :

@@ -52,8 +52,10 @@ def twitter_all_commands():
     pc.print("Displaying all Commands ", ":search:", style='bright_white')
     pc.print("exit : ", style='orange_red1', end='')
     pc.print("For Exit from Terra", style='bright_white')
-    pc.print("clear: ", style='orchid2', end='')
+    pc.print("clear : ", style='orchid2', end='')
     pc.print("Clear your Screen", style='bright_white')
+    pc.print('back : ', style='purple', end='')
+    pc.print('Back to Main Menu', style='yellow')
 
 
 
@@ -112,8 +114,10 @@ def insta_all_commands():
     pc.print("Displaying all Commands ", ":search:", style='bright_white')
     pc.print("exit : ", style='orange_red1', end='')
     pc.print("For Exit from Terra", style='bright_white')
-    pc.print("clear: ", style='orchid2', end='')
+    pc.print("clear : ", style='orchid2', end='')
     pc.print("Clear your Screen", style='bright_white')
+    pc.print('back : ', style='purple', end='')
+    pc.print('Back to Main Menu', style='yellow')
     
 
 
@@ -133,7 +137,7 @@ def banner():
     pc.print(banner.renderText("Terra"),style="bold red")
     pc.print("                         OSINT TOOL ON SOCIAL MEDIA NETWORKS                                                                                              ", style="cyan1")
     print(" ")
-    pc.print("                         @xadhrit (github.com/xadhrit/)                                                                                                                                 " , style="bright_red")
+    pc.print("                         @xadhrit (github.com/xadhrit/)                         " , style='bold red')                                                   
 
 
 def _out():
@@ -156,8 +160,9 @@ def main():
     banner()    
     pc.print("  \n> 1 for Twitter ",style="bright_yellow")
     pc.print("  \n> 2 for Instagram ",style="green3")
+    pc.print("  \n> 3 for Exit ")
     print(" ")
-    pc.print("> Choose one option : ",style='',end='')
+    pc.print("> Choose one option : ",style='purple',end='')
     u_input = str(input())
     try:
         if u_input == '1':
@@ -193,6 +198,7 @@ def main():
                 'quit': quit,
                 'clear': clear,
                 'exit': _out,
+                 'back': main,
                 'reset target': api.reset_target,
                 'tweets': api.recent_tweets,
                 'favtweets': api.recent_fav,
@@ -271,6 +277,7 @@ def main():
             'clear': clear,
             'quit': quit,
             'exit': _out,
+            'back' : main,
             'locations': api.target_locations,
             'captions': api.__getCaptions__,
             'reset target': api.change_target,
@@ -321,16 +328,27 @@ def main():
                     print("")
                     
                 else:
+        
                     pc.print("ILLEGAL COMMAND", style="red")
-        if u_input == '':
-            pc.print('Invalid Option!', style='orange1')
-            #print(ValueError)
+        
+        if u_input == '3':
+            sys.exit(0)
+        
         if KeyboardInterrupt:
-            pc.print('Sending you out!', style='bold red')
+            pc.print('Invalid Option! Try Again.... ', style='bold red')
+            pc.print('Do you want to choose again ? (y/n)', style='red')
+            io = input()
+            if io == 'y' or 'Y':
+                main()
+            if io == 'n' or 'N':
+                sys.exit(0)
+            else:
+                print('Not a option! Good Bye!')
+                sys.exit(0)
         
         else:
             pc.print('Invalid Option! ',style='bright_red')
-        
+            main()
                 
     except Exception as e:
         pc.print(e,style='orange1')        
