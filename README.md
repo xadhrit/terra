@@ -38,14 +38,11 @@ $ cd terra
 
 For requirements run following commands:
 
-For Linux and Mac Plateform
+
 ```
 $ python3 install -r requirements.txt
 ```
-For Windows 
-```
-> python install -r requirements.txt
-```
+
 
 #### Note
 
