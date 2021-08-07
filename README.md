@@ -179,7 +179,7 @@ Every pull request with good and understandable code :) is welcomed.
 
 Open an issue on Github.
 
-*Every time you relogin in you instagram account  you have to delete session id and cookies and from creds/settings.json file and put an empty braces in file like this*
+*Every time you relogin in instagram account  you have to delete session ids and cookies and from creds/settings.json file and put an empty braces in file like this*
 
 
 ## External Libraries :
@@ -187,10 +187,4 @@ Open an issue on Github.
 Python-twitter : https://github.com/bear/python-twitter
 
 Instagram Private API :  https://github.com/ping/instagram_private_api
-
-
-
-
-
-
 
