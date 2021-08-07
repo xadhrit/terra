@@ -179,6 +179,9 @@ Every pull request with good and understandable code :) is welcomed.
 
 Open an issue on Github.
 
+*Every time you relogin in you instagram account  you have to delete session id and cookies and from creds/settings.json file and put an empty braces in file like this*
+
+
 ## External Libraries :
 
 Python-twitter : https://github.com/bear/python-twitter
