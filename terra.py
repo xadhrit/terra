@@ -7,18 +7,11 @@ from rich.style import Style
 from src.instagram import Instagram
 from src.twittr import Twitter
 import signal
+import pyreadline3 as pyreadline
 
 pc = Console()
 
 is_wind = sys.platform.startswith('win' or 'nt')
-
-
-if is_wind:
-    import pyreadline
-
-else:
-    import gnureadline
-
 
 
 def twitter_all_commands():
@@ -164,10 +157,12 @@ def main():
     print(" ")
     pc.print("> Choose one option : ",style='purple',end='')
     u_input = str(input())
+    #print(u_input)
     try:
         if u_input == '1':
             def completer(text, state):
                 options = [i for i in commands if i.startswith(text)]
+                #print(options)
                 if state < len(options):
                     return options[state]
 
@@ -176,13 +171,8 @@ def main():
 
             signal.signal(signal.SIGINT, handle_single)
                             
-            if is_wind:
-                pyreadline.Readline().parse_and_bind("tab: complete")
-                pyreadline.Readline().set_completer(completer)
-
-            else:
-                gnureadline.parse_and_bind("tab: complete")
-                gnureadline.set_completer(completer)
+            pyreadline.Readline().parse_and_bind("tab: complete")
+            pyreadline.Readline().set_completer(completer)
                         
             parser = argparse.ArgumentParser(description="Recon with Terra")        
             parser.add_argument('target', type=str, help='username of target')
@@ -212,8 +202,8 @@ def main():
 
             }
             signal.signal(signal.SIGINT, handle_single)
-            gnureadline.parse_and_bind("tab: complete")
-            gnureadline.set_completer(completer)
+            pyreadline.parse_and_bind("tab: complete")
+            pyreadline.set_completer(completer)
             
             while True:
                 print(" ")
@@ -246,6 +236,7 @@ def main():
         if u_input == '2':
             def completer(text, state):
                 options = [i for i in commands if i.startswith(text)]
+                print(options)
                 if state < len(options):
                     return options[state]
 
@@ -254,13 +245,9 @@ def main():
                
             signal.signal(signal.SIGINT, handle_single)
             
-            if is_wind:
-                  pyreadline.Readline().parse_and_bind("tab: complete")
-                  pyreadline.Readline().set_completer(completer)
-
-            else:
-                 gnureadline.parse_and_bind("tab: complete")
-                 gnureadline.set_completer(completer)
+            
+            pyreadline.Readline().parse_and_bind("tab: complete")
+            pyreadline.Readline().set_completer(completer)
                            
             parser = argparse.ArgumentParser(description="Recon with Terra")        
             parser.add_argument('target', type=str, help='username of target')
@@ -301,8 +288,8 @@ def main():
             'ttag': api._users_who_tagged
             }
             signal.signal(signal.SIGINT, handle_single)
-            gnureadline.parse_and_bind("tab: complete")
-            gnureadline.set_completer(completer)
+            pyreadline.parse_and_bind("tab: complete")
+            pyreadline.set_completer(completer)
             
             while True:
                 pc.print("~/Terra Command >$ ", style='purple', end='')

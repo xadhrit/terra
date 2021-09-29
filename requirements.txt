@@ -3,6 +3,6 @@ python-twitter
 geopy
 PrettyTable
 prettytable
-gnureadline
+pyreadline3
 beautifulsoup4
 git+https://git@github.com/ping/instagram_private_api.git@1.6.0
