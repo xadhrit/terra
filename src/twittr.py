@@ -688,8 +688,4 @@ class Twitter:
                 }
                 json_file_name = "./results/twitter/"+ self.target + "_hashtags_.json"
                 with open(json_file_name,"w") as fj:
-                    json.dump(json_data, fj)
-                                    
-                
-                    
-      
+                    json.dump(json_data, fj)      

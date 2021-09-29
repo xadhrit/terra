@@ -6,13 +6,8 @@ from pyfiglet import Figlet
 from rich.style import Style
 from src.instagram import Instagram
 from src.twittr import Twitter
-import signal
-import pyreadline3 as pyreadline
 
 pc = Console()
-
-is_wind = sys.platform.startswith('win' or 'nt')
-
 
 def twitter_all_commands():
     pc.print("FILE=y/n : ", style="yellow", end='')
@@ -49,9 +44,6 @@ def twitter_all_commands():
     pc.print("Clear your Screen", style='bright_white')
     pc.print('back : ', style='purple', end='')
     pc.print('Back to Main Menu', style='yellow')
-
-
-
 
 def insta_all_commands():
     
@@ -112,18 +104,14 @@ def insta_all_commands():
     pc.print('back : ', style='purple', end='')
     pc.print('Back to Main Menu', style='yellow')
     
-
-
 def clear():
     # for windows screen
-    if is_wind:
+    if sys.platform.startswith('win'):
         os.system('cls')
-
     # for mac or linux          
     else:
         os.system('clear')
-        
-        
+                
 def banner():
     clear()
     banner = Figlet(font='isometric3',justify='right')
@@ -132,16 +120,15 @@ def banner():
     print(" ")
     pc.print("                         @xadhrit (github.com/xadhrit/)                         " , style='bold red')                                                   
 
-
 def _out():
     pc.print("Thank you for using Terra!", style="yellow")
     sys.exit(0)
 
-
+"""
 def handle_single(sig, frame):
     pc.print("\n Sending you Out \n", style="red")
     sys.exit(0)
-
+"""
 parser = argparse.ArgumentParser(description="Recon with Terra")        
 parser.add_argument('target', type=str, help='username of target')
 parser.add_argument('-j', '--json', help='save results in a JSON file', action='store_true')
@@ -157,23 +144,8 @@ def main():
     print(" ")
     pc.print("> Choose one option : ",style='purple',end='')
     u_input = str(input())
-    #print(u_input)
     try:
         if u_input == '1':
-            def completer(text, state):
-                options = [i for i in commands if i.startswith(text)]
-                #print(options)
-                if state < len(options):
-                    return options[state]
-
-                else:
-                    return None
-
-            signal.signal(signal.SIGINT, handle_single)
-                            
-            pyreadline.Readline().parse_and_bind("tab: complete")
-            pyreadline.Readline().set_completer(completer)
-                        
             parser = argparse.ArgumentParser(description="Recon with Terra")        
             parser.add_argument('target', type=str, help='username of target')
             parser.add_argument('-j', '--json', help='save results in a JSON file', action='store_true')
@@ -188,7 +160,7 @@ def main():
                 'quit': quit,
                 'clear': clear,
                 'exit': _out,
-                 'back': main,
+                'back': main,
                 'reset target': api.reset_target,
                 'tweets': api.recent_tweets,
                 'favtweets': api.recent_fav,
@@ -199,17 +171,11 @@ def main():
                 'banner': api.banner_pic,
                 'htags': api.get_hashtags,
                 'mentions':api.get_mentions
-
             }
-            signal.signal(signal.SIGINT, handle_single)
-            pyreadline.parse_and_bind("tab: complete")
-            pyreadline.set_completer(completer)
-            
             while True:
                 print(" ")
                 pc.print("~/Terra Command >$ ", style='purple', end='')
-                user_input = input()
-                
+                user_input = input()                
                 cmd = commands.get(user_input)
                 if cmd:
                     cmd()
@@ -234,30 +200,13 @@ def main():
       
         
         if u_input == '2':
-            def completer(text, state):
-                options = [i for i in commands if i.startswith(text)]
-                print(options)
-                if state < len(options):
-                    return options[state]
-
-                else:
-                   return None
-               
-            signal.signal(signal.SIGINT, handle_single)
-            
-            
-            pyreadline.Readline().parse_and_bind("tab: complete")
-            pyreadline.Readline().set_completer(completer)
-                           
             parser = argparse.ArgumentParser(description="Recon with Terra")        
             parser.add_argument('target', type=str, help='username of target')
             parser.add_argument('-j', '--json', help='save results in a JSON file', action='store_true')
             parser.add_argument('-f', '--file', help='save results in a Text File', action='store_true')
             args = parser.parse_args()
             api = Instagram(args.target,args.file,args.json)
-            
                                                                                                                       
-
             commands = {
             'ls': insta_all_commands,
             'help': insta_all_commands,
@@ -287,35 +236,25 @@ def main():
             'commenter':  api._people_who_commented,
             'ttag': api._users_who_tagged
             }
-            signal.signal(signal.SIGINT, handle_single)
-            pyreadline.parse_and_bind("tab: complete")
-            pyreadline.set_completer(completer)
-            
+
             while True:
                 pc.print("~/Terra Command >$ ", style='purple', end='')
                 user_input = input()
                 
                 cmd = commands.get(user_input)
                 if cmd:
-                    cmd()
-                    
+                    cmd()        
                 elif user_input == 'FILE=y':
                     api.write_file(True)
-                
                 elif user_input == 'FILE=n':
                     api.write_file(False)
-                    
                 elif user_input == 'JSON=y':
                     api.json_dump(True)
-                    
                 elif user_input == 'JSON=n':
                     api.json_dump(False)
-                    
                 elif user_input == '':
                     print("")
-                    
                 else:
-        
                     pc.print("ILLEGAL COMMAND", style="red")
         
         if u_input == '3':
@@ -327,7 +266,7 @@ def main():
             io = input()
             if io == 'y' or 'Y':
                 main()
-            if io == 'n' or 'N':
+            elif io == 'n' or 'N':
                 sys.exit(0)
             else:
                 print('Not a option! Good Bye!')
@@ -335,11 +274,10 @@ def main():
         
         else:
             pc.print('Invalid Option! ',style='bright_red')
-            main()
-                
+            sys.exit(0)
+          
     except Exception as e:
         pc.print(e,style='orange1')        
     
 if __name__ == '__main__':
     main()    
-

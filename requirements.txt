@@ -1,8 +1,10 @@
 rich
 python-twitter
 geopy
-PrettyTable
 prettytable
-pyreadline3
+prompt-toolkit
+#gnureadline>=8.0.0; platform_system != "Windows"
+#pyreadline==2.1; platform_system=="Windows"
 beautifulsoup4
+
 git+https://git@github.com/ping/instagram_private_api.git@1.6.0

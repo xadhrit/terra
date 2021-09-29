@@ -169,7 +169,7 @@ ttag : For listing user tagged target in their posts
 
 ## Future Plans :
 
-Will be support other social media networks soon.
+No Longer Maintained
 
 ## Contribution :
 
