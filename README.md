@@ -167,10 +167,6 @@ ttag : For listing user tagged target in their posts
 
 ```
 
-## Future Plans :
-
-No Longer Maintained
-
 ## Contribution :
 
 Every pull request with good and understandable code :) is welcomed. 
@@ -188,3 +184,5 @@ Python-twitter : https://github.com/bear/python-twitter
 
 Instagram Private API :  https://github.com/ping/instagram_private_api
 
+
+**Terra is no longer a active project. I am looking for maintainers.**
