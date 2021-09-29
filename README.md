@@ -185,4 +185,4 @@ Python-twitter : https://github.com/bear/python-twitter
 Instagram Private API :  https://github.com/ping/instagram_private_api
 
 
-**Terra is no longer a active project. I am looking for maintainers.**
+**Terra is no longer an active project. I am looking for maintainers.**
