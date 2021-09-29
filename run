@@ -1,0 +1,9 @@
+#!/bin/sh
+
+c='\e[36m'
+g='\e[32m' 
+
+echo -e "${g}"
+pip install -r requirements.txt
+
+echo -e "${c} Please put your credentials inside the creds/ folder."
