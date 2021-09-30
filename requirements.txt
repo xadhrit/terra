@@ -2,7 +2,7 @@ rich
 python-twitter==3.5
 geopy==2.2.0
 prettytable==2.2.1
-urllib3=1.26.7
+urllib3 #look dumb :(
 requests==2.26.0
 beautifulsoup4
 git+https://git@github.com/ping/instagram_private_api.git@1.6.0
