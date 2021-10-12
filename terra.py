@@ -260,6 +260,9 @@ def main():
         if u_input == '3':
             sys.exit(0)
         
+        if u_input == 'exit':
+            sys.exit(0)
+
         if KeyboardInterrupt:
             pc.print('Invalid Option! Try Again.... ', style='bold red')
             pc.print('Do you want to choose again ? (y/n)', style='red')
