@@ -171,7 +171,7 @@ ttag : For listing user tagged target in their posts
 
 Every pull request with good and understandable code :) is welcomed. 
 
-## TourbleShooting
+## TroubleShooting
 
 Open an issue on Github.
 
