@@ -571,6 +571,9 @@ class Twitter:
             #get followings of target
             following = self.api.GetFriends(screen_name=self.target)
             following_num = len(following) 
+
+            json_data = {}
+            text_data = ""
             
             for user in following:
                 id = user.id
@@ -584,28 +587,29 @@ class Twitter:
                 pc.print(" | Joined On : ", joined , style="cyan")
                 
                 print(" ")
+
+                if self.jsonDump:
+                    json_data[id] = {
+                        "username": username,
+                        "full_name": full_name,
+                        "joined": joined
+                    }
+                if self.textDump:
+                    text_data += "id : {} | username : {} | full name : {} | Joined On : {}\n".format(id, username, full_name, joined)
+
             pc.print('{} follows  {} users. '.format(self.target , following_num), style='bright_white') 
                  
             if self.writeFile:
-                
                 file_name = "./results/twitter/" + self.target + "_following_.txt"
                 file = open(file_name, "w")
-                file.write(str(id))
-                file.write(str(username))
+                file.write(text_data)
                 file.close()
                 pc.print("Results save in results/twitter/ folder.", style='green')
                 
             if self.jsonDump:
-                json_data = {
-                    "id":id,
-                    "username":username,
-                    "full_name": full_name,
-                    "joined": joined
-                }
-                json_data  = json_data
                 json_file_name = "./results/twitter/" + self.target + "_following_.json"
                 with open(json_file_name, "w") as fp:
-                    json.dump(json_data,fp)
+                    json.dump(json_data, fp)
                     
                 
         except (Exception, TwitterError) as err:
