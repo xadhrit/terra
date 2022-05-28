@@ -186,3 +186,12 @@ Instagram Private API :  https://github.com/ping/instagram_private_api
 
 
 **Terra is no longer an active project. I am looking for maintainers.**
+
+**For those who can't run terra after the recent commit**
+
+##### Change your creds in creds.yml file
+
+```
+username: "username"
+password: "password"
+```
