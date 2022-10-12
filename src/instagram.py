@@ -112,7 +112,7 @@ class Instagram:
             pc.print("Please re-check credentials again in ./creds/insta.yml file :) ", style='orange1')   
             # login exired
             # login again
-            self.api = AppClient(auto_patch=True, authentication=True, username=user,password=passwd, on_login=lambda x: self.on_login_callback(x, settings_file))
+            self.api = AppClient(auto_patch=True, authentication=True, username=user,password=passwd, on_login=lambda x: self.onlogin_callback(x, settings_file))
             
         except ClientError as err:
             e = json.loads(err.error_response)
